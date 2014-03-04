@@ -1,0 +1,107 @@
+controlVariables:
+(mode,0,99,0);
+(R1F_ADDR,0,65535,1);
+(Bit_tr,0,9,0);
+(Bit_Address,0,255,0);
+(Bit_Number,0,99,0);
+
+shareResources:
+(GPT_Old);
+(deltaMS);
+(SInt);
+(MSInt);
+(MS);
+(S);
+
+tasks:
+(Task128ms,30000,50000,-1,{SInt,MSInt,GPT_Old},{S,MS,deltaMS});
+(TaskServeOBDH,5000,6000,-1,{GPT_Old,SInt},{SInt,MSInt});
+(TaskTRDATA_VS,3000,5000,-1,{},{});
+(TaskManage,8000,10000,-1,{},{SInt});
+(TaskOBDH,-1,-1,-1,{MS,S,deltaMS},{SInt,MSInt,GPT_Old});
+(RecieveTime,1000,1100,1000,{SInt,MS},{});
+(RecieveData,1000,1100,1000,{MSInt,S},{});
+(WriteMemory,50,120,100,{},{});
+(ResetGNCPointer,30,35,30,{},{});
+(ResetInjPointer,30,35,30,{},{});
+(ResetMemPointer,30,35,30,{},{});
+(SwitchMode,25,30,30,{},{});
+(Exhaust,30,40,35,{},{});
+(SetFlag,25,30,30,{},{});
+
+procedures:
+SystemProc1{if(mode == 0){ 
+		Task128ms();
+		TaskManage();}
+	else{
+		Task128ms();
+		mode = 1;
+	}	 
+	R1F_ADDR = 40;};
+SystemProc2{SetFlag();
+	TaskServeOBDH(); 
+	if(mode >= 2 && mode < 5){R1F_ADDR = 13; mode = 3;
+		if(mode > 100) {RecieveData();}
+	}else{
+		WriteMemory();
+	if(mode == 1){SetFlag();}else{
+		mode = 2;
+		RecieveData();
+		}
+	}};
+SystemProc3{TaskManage();	
+	TaskOBDH();	};
+SystemProc4{TaskManage();
+	if(mode == 0){ }	 
+	R1F_ADDR = 40;};
+InterOBDH_1{RecieveTime();
+	if(Bit_tr == 0 && Bit_Address == 18){
+		CloseInter();
+		WriteMemory();
+		OpenInter();
+	}};
+InterOBDH_2{RecieveData();
+	if(Bit_tr == 0 && Bit_Address == 26){
+		WriteMemory();
+	SetFlag();
+	}};
+InterOBDH_3{Exhaust();
+	if(Bit_tr == 0 && Bit_Address == 31 && Bit_Number == 17 && R1F_ADDR == 42781){
+		Bit_Address = 0;
+		SetFlag();
+	}};
+InterOBDH_4{ResetGNCPointer();
+	if(Bit_tr == 0 && Bit_Address == 31 && Bit_Number == 17 && R1F_ADDR == 8927){
+		Bit_tr = 1;
+	}};
+InterOBDH_5{if(Bit_tr == 0 && Bit_Address == 31 && Bit_Number == 17 && R1F_ADDR == 53767){
+	Bit_tr = 1;
+	}
+	ResetInjPointer();};
+InterOBDH_6{if(Bit_tr == 0 && Bit_Address == 31 && Bit_Number == 17 && R1F_ADDR == 19785){
+		Bit_tr = 1;
+	}
+	ResetMemPointer();};
+InterOBDH_7{if(Bit_tr == 0 && Bit_Address == 31 && Bit_Number == 17 && R1F_ADDR == 18927){
+	Bit_tr = 1;
+	}
+	SwitchMode();};
+main{};
+
+interrupts:
+(SystemProc1,255,no,periodical,128000,-1,0,88000,0);
+(SystemProc2,255,no,periodical,128000,-1,0,8000,88000);
+(SystemProc3,255,no,periodical,128000,-1,0,16000,96000);
+(SystemProc4,255,no,periodical,128000,-1,0,16000,112000);
+(InterOBDH_1,5,ox001,random,-1,30000,0,1400,-1);
+(InterOBDH_2,4,ox010,random,-1,10000,0,1400,-1);
+(InterOBDH_3,0,ox011,random,-1,1000000,0,50,-1);
+(InterOBDH_4,0,ox100,periodical,1000,-1,0,50,-1);
+(InterOBDH_5,0,ox101,random,-1,1000,0,50,-1);
+(InterOBDH_6,0,ox110,random,-1,2000,0,50,-1);
+(InterOBDH_7,0,ox111,random,-1,3000,0,50,-1);
+(main,256,no,random,-1,-1,-1,-1,-1);
+
+taskSequences:
+Task128ms, TaskOBDH, TaskManage;
+Task128ms, TaskOBDH, RecieveTime;

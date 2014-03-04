@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+  <controlVariable>
+    <value>
+      <name>a</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>99</upperBound>
+      <initValue>0</initValue>
+      <assignFlag>yes</assignFlag>
+      <remark>A，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+    </value>
+    <value>
+      <name>b</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>255</upperBound>
+      <initValue>1</initValue>
+      <assignFlag>yes</assignFlag>
+      <remark>B，校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+    </value>
+  </controlVariable>
+  <shareResource>
+    <value>
+      <name>st</name>
+    </value>
+    <value>
+      <name>ts</name>
+    </value>
+    <value>
+      <name>a.b.c</name>
+    </value>
+    <value>
+      <name>a3232.test_3.uu</name>
+    </value>
+  </shareResource>
+  <task>
+    <value>
+      <name>TaskA</name>
+      <lowerBound>280</lowerBound>
+      <upperBound>300</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource/>
+      <writeSource/>
+      <commFlag>no</commFlag>
+      <remark>子过程A，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+    </value>
+    <value>
+      <name>TaskB</name>
+      <lowerBound>100</lowerBound>
+      <upperBound>12000000000000</upperBound>
+      <finishTime>500</finishTime>
+      <readSource>
+        <name>st</name>
+      </readSource>
+      <writeSource>
+        <name>a3232.test_3.uu</name>
+      </writeSource>
+      <commFlag>yes</commFlag>
+      <remark>子过程B，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+    </value>
+    <value>
+      <name>TaskC</name>
+      <lowerBound>80</lowerBound>
+      <upperBound>100</upperBound>
+      <finishTime>500</finishTime>
+      <readSource/>
+      <writeSource>
+        <name>ts</name>
+      </writeSource>
+      <commFlag>yes</commFlag>
+      <remark>子过程C，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+    </value>
+    <value>
+      <name>taskA</name>
+      <lowerBound>80</lowerBound>
+      <upperBound>90</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource>
+        <name>a.b.c</name>
+      </readSource>
+      <writeSource/>
+      <commFlag>yes</commFlag>
+      <remark>taskA</remark>
+    </value>
+    <value>
+      <name>taskB</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>-1</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource/>
+      <writeSource/>
+      <commFlag>no</commFlag>
+      <remark></remark>
+    </value>
+  </task>
+  <interruption>
+    <value>
+      <name>SysProc1</name>
+      <priority>255</priority>
+      <IRQ>no</IRQ>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <offset>0</offset>
+      <interval>-1</interval>
+      <upperBound>450</upperBound>
+      <remark>系统任务一，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。</remark>
+      <procedure>TaskA(); if(a == 0){ TaskB(); }</procedure>
+    </value>
+    <value>
+      <name>SysProc2</name>
+      <priority>255</priority>
+      <IRQ>no</IRQ>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <offset>500</offset>
+      <interval>-1</interval>
+      <upperBound>200</upperBound>
+      <remark>系统任务二，小路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+      <procedure>TaskA(); a = 1;</procedure>
+    </value>
+    <value>
+      <name>SysProc3</name>
+      <priority>255</priority>
+      <IRQ>no</IRQ>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <offset>800</offset>
+      <interval>-1</interval>
+      <upperBound>150</upperBound>
+      <remark>系统任务三，路由器上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+      <procedure>TaskC();</procedure>
+    </value>
+    <value>
+      <name>Inter1</name>
+      <priority>1</priority>
+      <IRQ>no</IRQ>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <offset>-1</offset>
+      <interval>500</interval>
+      <upperBound>100</upperBound>
+      <remark>外部中断一，上网模式将可能导致出校访问速度慢、IPv6网站无法访问、个人信息泄露等问题。校园网用户请遵守国家有关互联网使用的相关规定，帐号限个人使用，不得转借、转让。</remark>
+      <procedure>taskA();</procedure>
+    </value>
+    <value>
+      <name>Inter2</name>
+      <priority>1</priority>
+      <IRQ>no</IRQ>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <offset>-1</offset>
+      <interval>300</interval>
+      <upperBound>20</upperBound>
+      <remark>外部中断二</remark>
+      <procedure>b = 2;</procedure>
+    </value>
+  </interruption>
+  <taskSequence/>
+  <interval>
+    <value>
+      <IRQ>ox001</IRQ>
+      <leastInterval>1000</leastInterval>
+    </value>
+    <value>
+      <IRQ>ox002</IRQ>
+      <leastInterval>2000</leastInterval>
+    </value>
+  </interval>
+  <commuTaskBound>
+    <value>10000</value>
+  </commuTaskBound>
+  <ITANet amount="3">
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="50" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>Inter1</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=500</guard>
+        <reset>x = 0</reset>
+        <bendpoints>
+          <point x="65" y="100"/>
+          <point x="100" y="50"/>
+          <point x="0" y="50"/>
+          <point x="35" y="100"/>
+        </bendpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="50" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>Inter2</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=300</guard>
+        <reset>x = 0</reset>
+        <bendpoints>
+          <point x="65" y="100"/>
+          <point x="100" y="50"/>
+          <point x="0" y="50"/>
+          <point x="35" y="100"/>
+        </bendpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant>x&lt;=0</invariant>
+        <constraint x="50" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <state ID="1">
+        <name>s1</name>
+        <initial>false</initial>
+        <invariant>x&lt;=500</invariant>
+        <constraint x="150" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <state ID="2">
+        <name>s2</name>
+        <initial>false</initial>
+        <invariant>x&lt;=800</invariant>
+        <constraint x="250" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <state ID="3">
+        <name>s3</name>
+        <initial>false</initial>
+        <invariant>x&lt;=1000</invariant>
+        <constraint x="350" y="100">
+          <height>30</height>
+          <width>30</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>SysProc1</name>
+        <sourceid>0</sourceid>
+        <targetid>1</targetid>
+        <guard>x==0</guard>
+        <reset></reset>
+        <bendpoints>
+          <point x="65" y="100"/>
+          <point x="135" y="100"/>
+        </bendpoints>
+      </transition>
+      <transition>
+        <name>SysProc2</name>
+        <sourceid>1</sourceid>
+        <targetid>2</targetid>
+        <guard>x==500</guard>
+        <reset></reset>
+        <bendpoints>
+          <point x="165" y="100"/>
+          <point x="235" y="100"/>
+        </bendpoints>
+      </transition>
+      <transition>
+        <name>SysProc3</name>
+        <sourceid>2</sourceid>
+        <targetid>3</targetid>
+        <guard>x==800</guard>
+        <reset></reset>
+        <bendpoints>
+          <point x="265" y="100"/>
+          <point x="335" y="100"/>
+        </bendpoints>
+      </transition>
+      <transition>
+        <name>SysProc1</name>
+        <sourceid>3</sourceid>
+        <targetid>1</targetid>
+        <guard>x==1000</guard>
+        <reset>x = 0</reset>
+        <bendpoints>
+          <point x="365" y="100"/>
+          <point x="400" y="50"/>
+          <point x="100" y="50"/>
+          <point x="135" y="100"/>
+        </bendpoints>
+      </transition>
+    </ITA>
+  </ITANet>
+</model>
