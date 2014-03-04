@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Wed Dec 11 15:27:53 CST 2013
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=C\:\\Users\\zengke.cai\\Desktop\\spaceBMC.jar
+manifest.mergeall=true
+manifest.mainclass=initializer.Main
+manifest.file=<createnew>
+jarname.isextern=true
+onejar.expand=
+excludes=
+includes=

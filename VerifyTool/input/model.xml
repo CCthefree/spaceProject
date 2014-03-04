@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+  <controlVariable>
+    <value>
+      <name>mode</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>99</upperBound>
+      <initValue>0</initValue>
+    </value>
+    <value>
+      <name>R1F_ADDR</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>65535</upperBound>
+      <initValue>1</initValue>
+    </value>
+    <value>
+      <name>Bit_tr</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>9</upperBound>
+      <initValue>0</initValue>
+    </value>
+    <value>
+      <name>Bit_Address</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>255</upperBound>
+      <initValue>0</initValue>
+    </value>
+    <value>
+      <name>Bit_Number</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>99</upperBound>
+      <initValue>0</initValue>
+    </value>
+  </controlVariable>
+  <shareResource>
+    <value>
+      <name>GPT_Old</name>
+    </value>
+    <value>
+      <name>deltaMS</name>
+    </value>
+    <value>
+      <name>SInt</name>
+    </value>
+    <value>
+      <name>MSInt</name>
+    </value>
+    <value>
+      <name>MS</name>
+    </value>
+    <value>
+      <name>S</name>
+    </value>
+  </shareResource>
+  <task>
+    <value>
+      <name>Task128ms</name>
+      <lowerBound>30000</lowerBound>
+      <upperBound>50000</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource>
+        <name>SInt</name>
+        <name>MSInt</name>
+        <name>GPT_Old</name>
+      </readSource>
+      <writeSource>
+        <name>S</name>
+        <name>MS</name>
+        <name>deltaMS</name>
+      </writeSource>
+    </value>
+    <value>
+      <name>TaskServeOBDH</name>
+      <lowerBound>5000</lowerBound>
+      <upperBound>6000</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource>
+        <name>GPT_Old</name>
+        <name>SInt</name>
+      </readSource>
+      <writeSource>
+        <name>SInt</name>
+        <name>MSInt</name>
+      </writeSource>
+    </value>
+    <value>
+      <name>TaskTRDATA_VS</name>
+      <lowerBound>3000</lowerBound>
+      <upperBound>5000</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>TaskManage</name>
+      <lowerBound>8000</lowerBound>
+      <upperBound>10000</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource/>
+      <writeSource>
+        <name>SInt</name>
+      </writeSource>
+    </value>
+    <value>
+      <name>TaskOBDH</name>
+      <lowerBound>-1</lowerBound>
+      <upperBound>-1</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource>
+        <name>MS</name>
+        <name>S</name>
+        <name>deltaMS</name>
+      </readSource>
+      <writeSource>
+        <name>SInt</name>
+        <name>MSInt</name>
+        <name>GPT_Old</name>
+      </writeSource>
+    </value>
+    <value>
+      <name>RecieveTime</name>
+      <lowerBound>1000</lowerBound>
+      <upperBound>1100</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource>
+        <name>SInt</name>
+        <name>MS</name>
+      </readSource>
+      <writeSource/>
+    </value>
+    <value>
+      <name>RecieveData</name>
+      <lowerBound>1000</lowerBound>
+      <upperBound>1100</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource>
+        <name>MSInt</name>
+        <name>S</name>
+      </readSource>
+      <writeSource/>
+    </value>
+    <value>
+      <name>WriteMemory</name>
+      <lowerBound>50</lowerBound>
+      <upperBound>120</upperBound>
+      <finishTime>100</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>ResetGNCPointer</name>
+      <lowerBound>30</lowerBound>
+      <upperBound>35</upperBound>
+      <finishTime>30</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>ResetInjPointer</name>
+      <lowerBound>30</lowerBound>
+      <upperBound>35</upperBound>
+      <finishTime>30</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>ResetMemPointer</name>
+      <lowerBound>30</lowerBound>
+      <upperBound>35</upperBound>
+      <finishTime>30</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>SwitchMode</name>
+      <lowerBound>25</lowerBound>
+      <upperBound>30</upperBound>
+      <finishTime>30</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>Exhaust</name>
+      <lowerBound>30</lowerBound>
+      <upperBound>40</upperBound>
+      <finishTime>35</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+    <value>
+      <name>SetFlag</name>
+      <lowerBound>25</lowerBound>
+      <upperBound>30</upperBound>
+      <finishTime>30</finishTime>
+      <readSource/>
+      <writeSource/>
+    </value>
+  </task>
+  <interruption>
+    <value>
+      <name>SystemProc1</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>88000</upperBound>
+      <offset>0</offset>
+      <procedure>if(mode == 0){ Task128ms(); TaskManage();} else{ Task128ms(); mode = 1; } R1F_ADDR = 40;</procedure>
+    </value>
+    <value>
+      <name>SystemProc2</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>8000</upperBound>
+      <offset>88000</offset>
+      <procedure>SetFlag(); TaskServeOBDH(); if(mode &gt;= 2 &amp;&amp; mode &lt; 5){R1F_ADDR = 13; mode = 3; if(mode &gt; 100) {RecieveData();} }else{ WriteMemory(); if(mode == 1){SetFlag();}else{ mode = 2; RecieveData(); } }</procedure>
+    </value>
+    <value>
+      <name>SystemProc3</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>16000</upperBound>
+      <offset>96000</offset>
+      <procedure>TaskManage(); TaskOBDH();</procedure>
+    </value>
+    <value>
+      <name>SystemProc4</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>16000</upperBound>
+      <offset>112000</offset>
+      <procedure>TaskManage(); if(mode == 0){ } R1F_ADDR = 40;</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_1</name>
+      <priority>5</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>30000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>1400</upperBound>
+      <offset>-1</offset>
+      <procedure>RecieveTime(); if(Bit_tr == 0 &amp;&amp; Bit_Address == 18){ CloseInter(); WriteMemory(); OpenInter(); }</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_2</name>
+      <priority>4</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>10000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>1400</upperBound>
+      <offset>-1</offset>
+      <procedure>RecieveData(); if(Bit_tr == 0 &amp;&amp; Bit_Address == 26){ WriteMemory(); SetFlag(); }</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_3</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>1000000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>50</upperBound>
+      <offset>-1</offset>
+      <procedure>Exhaust(); if(Bit_tr == 0 &amp;&amp; Bit_Address == 31 &amp;&amp; Bit_Number == 17 &amp;&amp; R1F_ADDR == 42781){ Bit_Address = 0; SetFlag(); }</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_4</name>
+      <priority>0</priority>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>50</upperBound>
+      <offset>-1</offset>
+      <procedure>ResetGNCPointer(); if(Bit_tr == 0 &amp;&amp; Bit_Address == 31 &amp;&amp; Bit_Number == 17 &amp;&amp; R1F_ADDR == 8927){ Bit_tr = 1; }</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_5</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>1000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>50</upperBound>
+      <offset>-1</offset>
+      <procedure>if(Bit_tr == 0 &amp;&amp; Bit_Address == 31 &amp;&amp; Bit_Number == 17 &amp;&amp; R1F_ADDR == 53767){ Bit_tr = 1; } ResetInjPointer();</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_6</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>2000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>50</upperBound>
+      <offset>-1</offset>
+      <procedure>if(Bit_tr == 0 &amp;&amp; Bit_Address == 31 &amp;&amp; Bit_Number == 17 &amp;&amp; R1F_ADDR == 19785){ Bit_tr = 1; } ResetMemPointer();</procedure>
+    </value>
+    <value>
+      <name>InterOBDH_7</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>3000</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>50</upperBound>
+      <offset>-1</offset>
+      <procedure>if(Bit_tr == 0 &amp;&amp; Bit_Address == 31 &amp;&amp; Bit_Number == 17 &amp;&amp; R1F_ADDR == 18927){ Bit_tr = 1; } SwitchMode();</procedure>
+    </value>
+  </interruption>
+  <taskSequence>
+    <value>Task128ms, TaskOBDH, TaskManage;</value>
+    <value>Task128ms, TaskOBDH, RecieveTime;</value>
+  </taskSequence>
+  
+  <ITANet amount="8">
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_1</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=30000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_2</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=10000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_3</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=1000000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant>x&lt;=1000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <state ID="1">
+        <name>s1</name>
+        <initial>false</initial>
+        <invariant>x&lt;=1000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_4</name>
+        <sourceid>0</sourceid>
+        <targetid>1</targetid>
+        <guard></guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+      <transition>
+        <name>InterOBDH_4</name>
+        <sourceid>1</sourceid>
+        <targetid>1</targetid>
+        <guard>x==1000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_5</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=1000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_6</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=2000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant></invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>InterOBDH_7</name>
+        <sourceid>0</sourceid>
+        <targetid>0</targetid>
+        <guard>x&gt;=3000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+    <ITA>
+      <state ID="0">
+        <name>s0</name>
+        <initial>true</initial>
+        <invariant>x&lt;=0</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <state ID="1">
+        <name>s1</name>
+        <initial>false</initial>
+        <invariant>x&lt;=88000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <state ID="2">
+        <name>s2</name>
+        <initial>false</initial>
+        <invariant>x&lt;=96000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <state ID="3">
+        <name>s3</name>
+        <initial>false</initial>
+        <invariant>x&lt;=112000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <state ID="4">
+        <name>s4</name>
+        <initial>false</initial>
+        <invariant>x&lt;=128000</invariant>
+        <constraint x="0" y="0">
+          <height>0</height>
+          <width>0</width>
+        </constraint>
+      </state>
+      <transition>
+        <name>SystemProc1</name>
+        <sourceid>0</sourceid>
+        <targetid>1</targetid>
+        <guard>x==0</guard>
+        <reset></reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+      <transition>
+        <name>SystemProc2</name>
+        <sourceid>1</sourceid>
+        <targetid>2</targetid>
+        <guard>x==88000</guard>
+        <reset></reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+      <transition>
+        <name>SystemProc3</name>
+        <sourceid>2</sourceid>
+        <targetid>3</targetid>
+        <guard>x==96000</guard>
+        <reset></reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+      <transition>
+        <name>SystemProc4</name>
+        <sourceid>3</sourceid>
+        <targetid>4</targetid>
+        <guard>x==112000</guard>
+        <reset></reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+      <transition>
+        <name>SystemProc1</name>
+        <sourceid>4</sourceid>
+        <targetid>1</targetid>
+        <guard>x==128000</guard>
+        <reset>x = 0</reset>
+        <benchpoints>
+          <point x="0" y="0"/>
+          <point x="0" y="0"/>
+        </benchpoints>
+      </transition>
+    </ITA>
+  </ITANet>
+</model>

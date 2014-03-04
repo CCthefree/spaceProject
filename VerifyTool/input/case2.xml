@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+  <controlVariable/>
+  <shareResource/>
+  <task>
+    <value>
+      <name>task1</name>
+      <lowerBound>450</lowerBound>
+      <upperBound>510</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+    <value>
+      <name>AOCC</name>
+      <lowerBound>10</lowerBound>
+      <upperBound>15</upperBound>
+      <finishTime>20</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+    <value>
+      <name>task2</name>
+      <lowerBound>50</lowerBound>
+      <upperBound>60</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+    <value>
+      <name>task3</name>
+      <lowerBound>50</lowerBound>
+      <upperBound>60</upperBound>
+      <finishTime>1000</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+  </task>
+  <interruption>
+    <value>
+      <name>Inter1</name>
+      <priority>1</priority>
+      <type>periodical</type>
+      <repeat>4000</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>1000</upperBound>
+      <offset>-1</offset>
+      <procedure>task1(); AOCC(); task2();</procedure>
+    </value>
+    <value>
+      <name>Inter2</name>
+      <priority>0</priority>
+      <type>periodical</type>
+      <repeat>500</repeat>
+      <interval>-1</interval>
+      <lowerBound>0</lowerBound>
+      <upperBound>100</upperBound>
+      <offset>-1</offset>
+      <procedure>task3();</procedure>
+    </value>
+  </interruption>
+  <taskSequence/>
+</model>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<al>
+  <controlVariable>
+    <value>
+      <name>a</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>99</upperBound>
+      <initValue>0</initValue>
+    </value>
+    <value>
+      <name>b</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>255</upperBound>
+      <initValue>0</initValue>
+    </value>
+    <value>
+      <name>c</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>99</upperBound>
+      <initValue>0</initValue>
+    </value>
+  </controlVariable>
+  <interruption>
+    <value>
+      <name>SystemProc1</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+	  <interval>-1</interval>
+      <offset>0</offset>
+      <procedure>if(a == 0){ Task128ms();} b = 2;</procedure>
+    </value><value>
+      <name>SystemProc4</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>150000</repeat>
+	  <interval>-1</interval>
+      <offset>0</offset>
+      <procedure>TaskManage(); if(a != 0){ c = 10;} c = 4;</procedure>
+    </value><value>
+      <name>InterOBDH_1</name>
+      <priority>5</priority>
+      <type>random</type>
+      <repeat>no</repeat>
+	  <interval>10000</interval>
+      <offset>-1</offset>
+      <procedure>RecieveTime(); if(c == 4){ CloseInter(); }else{C(); a = 5;}</procedure>
+    </value>
+    
+    <value>
+      <name>SystemProc3</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+	  <interval>-1</interval>
+      <offset>96000</offset>
+      <procedure>TaskManage(); TaskOBDH();</procedure>
+    </value>
+    
+	<value>
+      <name>SystemProc2</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>128000</repeat>
+	  <interval>-1</interval>
+      <offset>88000</offset>
+      <procedure>SetFlag(); if (a &gt;= 2 &amp;&amp; a &lt; 10) {if(a &gt; 5) {RecieveData();} else{a = 10; RecieverData();}} </procedure>
+    </value><value>
+      <name>SystemProc6</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>150000</repeat>
+	  <interval>-1</interval>
+      <offset>120000</offset>
+      <procedure>if(a &lt; 10){ if (a == 5) {TaskManage();} else{} b = 10;} </procedure>
+    </value><value>
+      <name>SystemProc5</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>150000</repeat>
+	  <interval>-1</interval>
+      <offset>80000</offset>
+      <procedure>TaskManage(); if(a &gt;= 2){ } b = 40;</procedure>
+    </value>
+	
+    
+    <value>
+      <name>InterOBDH_2</name>
+      <priority>4</priority>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <interval>-1</interval>
+      <offset>-1</offset>
+      <procedure>RecieveData(); if(b == 4){ WriteMemory(); SetFlag(); }else{if(a == 0){A();}else{B();}}</procedure>
+    </value><value>
+      <name>InterOBDH_3</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>no</repeat>
+      <interval>1000000</interval>
+      <offset>-1</offset>
+      <procedure>Exhaust(); if(b == 1){ b = 0; SetFlag(); a = 3;}</procedure>
+    </value>
+    
+  </interruption>
+ </al>

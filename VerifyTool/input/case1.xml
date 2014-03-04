@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+  <controlVariable/>
+  <shareResource/>
+  <task>
+    <value>
+      <name>recieveData</name>
+      <lowerBound>72</lowerBound>
+      <upperBound>100</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+    <value>
+      <name>main</name>
+      <lowerBound>0</lowerBound>
+      <upperBound>200</upperBound>
+      <finishTime>-1</finishTime>
+      <readSource></readSource>
+      <writeSource></writeSource>
+    </value>
+  </task>
+  <interruption>
+    <value>
+      <name>Inter1</name>
+      <priority>0</priority>
+      <type>random</type>
+      <repeat>-1</repeat>
+      <interval>70</interval>
+      <lowerBound>-1</lowerBound>
+      <upperBound>100</upperBound>
+      <offset>-1</offset>
+      <procedure>recieveData();</procedure>
+    </value>
+    <value>
+      <name>main</name>
+      <priority>255</priority>
+      <type>periodical</type>
+      <repeat>1000</repeat>
+      <interval>-1</interval>
+      <lowerBound>-1</lowerBound>
+      <upperBound>1000</upperBound>
+      <offset>0</offset>
+      <procedure>main();</procedure>
+    </value>
+  </interruption>
+  <taskSequence/>
+</model>
