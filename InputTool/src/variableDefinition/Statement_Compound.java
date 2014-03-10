@@ -138,7 +138,7 @@ public class Statement_Compound extends Statement{
 						this.errorInfo += "【处理程序】" + this.root + ": " + str + " 访问未定义的共享变量！\n";
 						
 						if(proc != null)
-							proc.addUndefinedSRs(token.get(i));
+							proc.addUndefinedRSRs(token.get(i));
 						return define.semanticError;
 					}
 					else{
@@ -177,7 +177,7 @@ public class Statement_Compound extends Statement{
 						this.errorInfo += "【处理程序】" + this.root + ": " + str + " 访问未定义的共享变量！\n";
 						
 						if(proc != null)
-							proc.addUndefinedSRs(token.get(i));
+							proc.addUndefinedWSRs(token.get(i));
 						return define.semanticError;
 					}
 					else{

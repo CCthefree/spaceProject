@@ -204,7 +204,7 @@ public class AddCVPanel extends JDialog {
 	 * @param controlVariables: name of controlVariables to be added, not null or empty
 	 */
 	public void add(ArrayList<String> cvs){
-		DefaultTableModel tablemodel = (DefaultTableModel) MainFrame.cvariableTable.getModel();
+		DefaultTableModel tablemodel = (DefaultTableModel) MainFrame.cvTable.getModel();
 
 		//add new tasks and refresh task table
 		for (String temp : cvs){

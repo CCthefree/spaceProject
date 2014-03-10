@@ -214,7 +214,7 @@ public class ChooseResource extends JDialog{
 	 */
 	public void addSuccess(ShareResource sr){
 		//add new share resource in table
-		DefaultTableModel tablemodel = (DefaultTableModel) MainFrame.shareResourceTable.getModel();
+		DefaultTableModel tablemodel = (DefaultTableModel) MainFrame.srTable.getModel();
 		tablemodel.addRow(new String[] { sr.name, "", "" });
 
 		//refresh resource chooser

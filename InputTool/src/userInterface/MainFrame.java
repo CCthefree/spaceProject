@@ -115,8 +115,8 @@ public class MainFrame extends JFrame implements WindowListener{
 	//jTable
 	public static JTable interTable;
 	public static JTable taskTable;
-	public static JTable cvariableTable;
-	public static JTable shareResourceTable;
+	public static JTable cvTable;
+	public static JTable srTable;
 	public static JTable inter_taskTable;
 	public static JTable intervalTable;
 	
@@ -207,8 +207,8 @@ public class MainFrame extends JFrame implements WindowListener{
 		//jTable
 		taskTable = new JTable();
 		interTable = new JTable();
-		cvariableTable = new JTable();
-		shareResourceTable = new JTable();
+		cvTable = new JTable();
+		srTable = new JTable();
 		inter_taskTable = new JTable();
 		intervalTable = new JTable();
 		
@@ -262,10 +262,10 @@ public class MainFrame extends JFrame implements WindowListener{
 
 		jTabbedPane1.setFont(buttonFont);
 
-		jsp_cv.setViewportView(cvariableTable);
+		jsp_cv.setViewportView(cvTable);
 		jsp_task.setViewportView(taskTable);
 		jsp_inter.setViewportView(interTable);
-		jsp_sr.setViewportView(shareResourceTable);
+		jsp_sr.setViewportView(srTable);
 		jsp_seqLogic.setViewportView(jta_seqLogic);
 		jsp_interProcDesc.setViewportView(jta_interProcDesc);
 		jsp_interTaskTable.setViewportView(inter_taskTable);
@@ -332,8 +332,8 @@ public class MainFrame extends JFrame implements WindowListener{
 		render.setHorizontalAlignment(SwingConstants.CENTER);
 		interTable.setDefaultRenderer(Object.class, render);
 		taskTable.setDefaultRenderer(Object.class, render);
-		cvariableTable.setDefaultRenderer(Object.class, render);
-		shareResourceTable.setDefaultRenderer(Object.class, render);
+		cvTable.setDefaultRenderer(Object.class, render);
+		srTable.setDefaultRenderer(Object.class, render);
 		inter_taskTable.setDefaultRenderer(Object.class, render);
 		
 
@@ -819,7 +819,7 @@ public class MainFrame extends JFrame implements WindowListener{
 	/**
 	 * set control variable table content
 	 */
-	public static void setCVContent(){
+	public void setCVContent(){
 		String[][] s = null;
     	DefaultTableModel tableModel = new DefaultTableModel(s, ControlVariable.labels) {
     		//设置表格可编辑列
@@ -841,18 +841,18 @@ public class MainFrame extends JFrame implements WindowListener{
 			public void tableChanged(TableModelEvent e){
 				int col = e.getColumn();
 				int row = e.getFirstRow();
-				if(col != -1 && row != -1 && col < cvariableTable.getColumnCount() - 1){
+				if(col != -1 && row != -1 && col < cvTable.getColumnCount() - 1){
 					updateCVInfo(row);
 					ModelInfoCheck.totalAnalysis();
 				}
 			}
 		});
 
-		cvariableTable.setModel(tableModel);
+		cvTable.setModel(tableModel);
 		
 
 		// 设置‘顺序取值’标签的输入方式
-		TableColumn col = cvariableTable.getColumnModel().getColumn(4);
+		TableColumn col = cvTable.getColumnModel().getColumn(4);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("yes");
 		comboBox.addItem("no");
@@ -863,7 +863,7 @@ public class MainFrame extends JFrame implements WindowListener{
 	/**
 	 * set share resource table content
 	 */
-	public static void setSRContent(){
+	public void setSRContent(){
 		String[][] s = null;
 		DefaultTableModel tableModel = new DefaultTableModel(s, ShareResource.labels) {
 			//设置表格可编辑列
@@ -884,14 +884,14 @@ public class MainFrame extends JFrame implements WindowListener{
 			public void tableChanged(TableModelEvent e){
 				int col = e.getColumn();
 				int row = e.getFirstRow();
-				if(col != -1 && row != -1 && col < shareResourceTable.getColumnCount() - 2){
+				if(col != -1 && row != -1 && col < srTable.getColumnCount() - 2){
 					updateSRInfo(row);
 					ModelInfoCheck.totalAnalysis();
 				}
 			}
 		});
 		
-		shareResourceTable.setModel(tableModel);
+		srTable.setModel(tableModel);
 	}
 	
 	
@@ -1109,20 +1109,20 @@ public class MainFrame extends JFrame implements WindowListener{
 		 * 监听controlVariable表格上鼠标事件
 		 * 鼠标驻留时显示备注、调用的程序信息，其它列不显示
 		 */
-		cvariableTable.addMouseMotionListener(new MouseAdapter() {
+		cvTable.addMouseMotionListener(new MouseAdapter() {
 
 			public void mouseMoved(MouseEvent e) {
-				int row = cvariableTable.rowAtPoint(e.getPoint());
-				int col = cvariableTable.columnAtPoint(e.getPoint());
+				int row = cvTable.rowAtPoint(e.getPoint());
+				int col = cvTable.columnAtPoint(e.getPoint());
 				if (row > -1 && (col == 5 || col == 6)) {
-					Object value = cvariableTable.getValueAt(row, col);
+					Object value = cvTable.getValueAt(row, col);
 					if (value != null && !value.equals(""))
-						cvariableTable.setToolTipText(value.toString());// 悬浮显示单元格内容
+						cvTable.setToolTipText(value.toString());// 悬浮显示单元格内容
 					else
-						cvariableTable.setToolTipText(null); // 关闭提示
+						cvTable.setToolTipText(null); // 关闭提示
 				}
 				else
-					cvariableTable.setToolTipText(null); // 关闭提示
+					cvTable.setToolTipText(null); // 关闭提示
 			}
 		});
 		
@@ -1244,8 +1244,7 @@ public class MainFrame extends JFrame implements WindowListener{
 
 				public void actionPerformed(ActionEvent e){
 						DefaultTableModel tableModel = (DefaultTableModel) interTable.getModel();
-						Interruption newInter = new Interruption();
-						Model.interArray.add(newInter);
+						Interruption newInter = Model.addNewInter("");
 						tableModel.addRow(Interruption.getContent(newInter));
 					}
 				});
@@ -1309,8 +1308,7 @@ public class MainFrame extends JFrame implements WindowListener{
 
 					public void actionPerformed(ActionEvent e){
 						DefaultTableModel tableModel = (DefaultTableModel) taskTable.getModel();
-						Task task = new Task();
-						Model.taskArray.add(task);
+						Task task = Model.addNewTask("");
 						
 						tableModel.addRow(Task.getContent(task));
 					}
@@ -1368,7 +1366,7 @@ public class MainFrame extends JFrame implements WindowListener{
 		jbtCvAdd.addActionListener(new ActionListener(){ 
 
 			public void actionPerformed(ActionEvent e){
-				DefaultTableModel tableModel = (DefaultTableModel) cvariableTable.getModel();
+				DefaultTableModel tableModel = (DefaultTableModel) cvTable.getModel();
 				ControlVariable cv = new ControlVariable();
 				Model.controlVariableArray.add(cv);
 				
@@ -1383,8 +1381,8 @@ public class MainFrame extends JFrame implements WindowListener{
 		jbtCvDel.addActionListener(new ActionListener(){ 
 
 			public void actionPerformed(ActionEvent e){
-				DefaultTableModel tableModel = (DefaultTableModel) cvariableTable.getModel();
-				int row = cvariableTable.getSelectedRow();
+				DefaultTableModel tableModel = (DefaultTableModel) cvTable.getModel();
+				int row = cvTable.getSelectedRow();
 				if(row != -1){
 					boolean choice = Notifier.DelConfirm();
 					if(choice == true){
@@ -1405,7 +1403,7 @@ public class MainFrame extends JFrame implements WindowListener{
 		jbtSrAdd.addActionListener(new ActionListener(){ 
 
 			public void actionPerformed(ActionEvent e){
-				DefaultTableModel tableModel = (DefaultTableModel) shareResourceTable.getModel();
+				DefaultTableModel tableModel = (DefaultTableModel) srTable.getModel();
 				ShareResource sr = new ShareResource();
 				Model.shareResourceArray.add(sr);
 				
@@ -1421,8 +1419,8 @@ public class MainFrame extends JFrame implements WindowListener{
 		jbtSrDel.addActionListener(new ActionListener(){ 
 
 			public void actionPerformed(ActionEvent e){
-				DefaultTableModel tableModel = (DefaultTableModel) shareResourceTable.getModel();
-				int row = shareResourceTable.getSelectedRow();
+				DefaultTableModel tableModel = (DefaultTableModel) srTable.getModel();
+				int row = srTable.getSelectedRow();
 				if(row != -1){
 					boolean choice = Notifier.DelConfirm();
 					if(choice == true){
@@ -1655,7 +1653,7 @@ public class MainFrame extends JFrame implements WindowListener{
 	 * change happens in one row
 	 */
 	private static void updateCVInfo(int row){
-		DefaultTableModel tableModel = (DefaultTableModel) cvariableTable.getModel();
+		DefaultTableModel tableModel = (DefaultTableModel) cvTable.getModel();
 		int col = tableModel.getColumnCount() - 1;       //注：最后一栏不可编辑
 		ControlVariable cvariable = Model.controlVariableArray.get(row);
 		String[] cvToken = new String[col];
@@ -1673,7 +1671,7 @@ public class MainFrame extends JFrame implements WindowListener{
 	 * change happens in one row
 	 */
 	private static void updateSRInfo(int row){
-		DefaultTableModel tableModel = (DefaultTableModel) shareResourceTable.getModel();
+		DefaultTableModel tableModel = (DefaultTableModel) srTable.getModel();
 		ShareResource sr = Model.shareResourceArray.get(row);
 		String str = (String) tableModel.getValueAt(row, 0);
 		//update share resource info

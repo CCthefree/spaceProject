@@ -32,7 +32,6 @@ public class ModelInfoCheck{
 
 	public static boolean computeInfoCorrect;	//计算所需的信息是否正确的标签，包括中断及处理程序信息和子过程信息
 	public static boolean otherInfoCorrect;		//其它信息是否正确的标签
-	//在检查子过程是否循环调用中记录出栈次序的列表，隐含了子过程的调用拓扑关系
 
 	//////////////////////////////////////////////全局检查//////////////////////////////////////////////////
 	/**
@@ -67,7 +66,7 @@ public class ModelInfoCheck{
 		if(!cvLocations.isEmpty()){	//进行渲染
 			cvLocations = mapReverse(cvLocations);
 		}
-		MainFrame.renderer(MainFrame.cvariableTable, cvLocations);
+		MainFrame.renderer(MainFrame.cvTable, cvLocations);
 
 		
 		/**共享资源**/
@@ -86,12 +85,14 @@ public class ModelInfoCheck{
 		if(!srLocations.isEmpty()){
 			srLocations = mapReverse(srLocations);
 		}
-		MainFrame.renderer(MainFrame.shareResourceTable, srLocations);
+		MainFrame.renderer(MainFrame.srTable, srLocations);
 
 
 		/**子过程**/
 		index = 0;
 		taskLocations.clear();
+		updateTaskInfo();	//更新子过程信息
+		
 		for (Task task : Model.taskArray){
 			if(task.contentCheck() != define.noError){
 				computeInfoCorrect = false;
@@ -105,8 +106,6 @@ public class ModelInfoCheck{
 		if(!taskLocations.isEmpty()){
 			taskLocations = mapReverse(taskLocations);
 		}
-		updateTaskInfo();	//更新子过程信息
-		
 		MainFrame.renderer(MainFrame.taskTable, taskLocations);
 
 
@@ -288,6 +287,7 @@ public class ModelInfoCheck{
 	 * function to update all the task information after read task description file
 	 */
 	private static void updateTaskInfo(){
+		//在检查子过程是否循环调用中记录出栈次序的列表，隐含了子过程的调用拓扑关系
 		ArrayList<Task> checkedList = new ArrayList<Task>();
 		if(checkLoopCall(checkedList) == true){	//存在循环调用，则弃用子过程附加文件中的所有信息
 			for(Task task : Model.taskArray)	//TODO 如果多次读取附加文件导致循环调用，会删掉所有Task的定义
@@ -295,7 +295,9 @@ public class ModelInfoCheck{
 		}
 		else{		//否则， 按逆拓扑序更新子过程的上下界以及共享资源信息
 			for(Task task : checkedList){
-				if(task.proc != null){
+				if(task.proc == null)
+					task.contentCheck();
+				else{
 					task.proc.computeExecTime();
 					
 					task.setBound(task.proc.bestTime, task.proc.worstTime);
@@ -304,10 +306,8 @@ public class ModelInfoCheck{
 			}
 		}
 		
-		//更新三个表格的信息，因为可能有新的CV/SR加入模型
+		//更新Task表格所有内容
 		MainFrame.setTaskContent();
-		MainFrame.setCVContent();
-		MainFrame.setSRContent();
 	}
 	
 	
@@ -367,24 +367,22 @@ public class ModelInfoCheck{
 	private static void containedCV(){
 		for (ControlVariable cv : Model.controlVariableArray){
 			cv.clearProcNames();
-		}
-		
-		//analysis contained control variables
-		for (Interruption inter : Model.interArray){
-			if(inter.proc.containedCVs != null)
-				for(ControlVariable cv : inter.proc.containedCVs)
+			
+			for(Interruption inter : Model.interArray){
+				if(inter.proc.containedCVs != null && inter.proc.containedCVs.contains(cv))
 					cv.addProcName(inter.name);
-		}
-		for(Task task : Model.taskArray){
-			if(task.proc != null && task.proc.containedCVs != null)
-				for(ControlVariable cv : task.proc.containedCVs)
+			}
+			
+			for(Task task : Model.taskArray){
+				if(task.proc != null && task.proc.containedCVs != null && task.proc.containedCVs.contains(cv))
 					cv.addProcName(task.name);
+			}
 		}
 		
 		//write into control variable table
 		for (int i = 0; i < Model.controlVariableArray.size(); i++){
 			ControlVariable cv = Model.controlVariableArray.get(i);
-			MainFrame.cvariableTable.setValueAt(cv.getProcNames(), i, ControlVariable.paraSize);
+			MainFrame.cvTable.setValueAt(cv.getProcNames(), i, ControlVariable.paraSize);
 		}
 	}
 
@@ -393,19 +391,19 @@ public class ModelInfoCheck{
 	 * analysis to get the procedure list that call certain task
 	 */
 	private static void containedTask(){
-		for (Task task : Model.taskArray){
-			task.clearProcNames();
-		}
-		//analysis contained tasks in interruption
-		for (Interruption inter : Model.interArray){
-			if(inter.proc.containedTasks != null)
-				for(Task task : inter.proc.containedTasks)
-					task.addProcName(inter.name);
-		}
-		for(Task task : Model.taskArray)
-			if(task.proc != null && task.proc.containedTasks != null)
-				for(Task subTask : task.proc.containedTasks)
+		for (Task subTask : Model.taskArray){
+			subTask.clearProcNames();
+			
+			for (Interruption inter : Model.interArray){
+				if(inter.proc.containedTasks != null && inter.proc.containedTasks.contains(subTask))
+					subTask.addProcName(inter.name);
+			}
+			
+			for(Task task : Model.taskArray){
+				if(task.proc != null && task.proc.containedTasks != null && task.proc.containedTasks.contains(subTask))
 					subTask.addProcName(task.name);
+			}
+		}
 		
 		//write into task table
 		for (int i = 0; i < Model.taskArray.size(); i++){
@@ -431,8 +429,8 @@ public class ModelInfoCheck{
 		//write into share resource table
 		for (int i = 0; i < Model.shareResourceArray.size(); i++){
 			ShareResource sr = Model.shareResourceArray.get(i);
-			MainFrame.shareResourceTable.setValueAt(sr.getReadTaskNames(), i, 1);
-			MainFrame.shareResourceTable.setValueAt(sr.getWriteTaskNames(), i, 2);
+			MainFrame.srTable.setValueAt(sr.getReadTaskNames(), i, 1);
+			MainFrame.srTable.setValueAt(sr.getWriteTaskNames(), i, 2);
 		}
 	}
 	
@@ -462,7 +460,7 @@ public class ModelInfoCheck{
 	 * check whether there exist same element in the given stack
 	 */
 	private static boolean containsSameEle(Stack<Task> stack){
-		if(stack.size() == 1)
+		if(stack.size() <= 1)
 			return false;
 		else{
 			for(int i = 0; i < stack.size()-1; i++)

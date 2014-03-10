@@ -14,12 +14,12 @@ public class Lexer{
 	/**
 	 * test whether a string is a reserved word
 	 */
-	public static boolean isRword(String str){
-		if(str.equals("[task|interruption|controlVariable|shareResource|taskSequence|interval|commuTaskBound |close|open|read|write|if|else|yes|no]"))
-			return true;
-		else
-			return false;
-	}
+//	public static boolean isRword(String str){
+//		if(str.equals("[task|interruption|controlVariable|shareResource|taskSequence|interval|commuTaskBound |close|open|read|write|if|else|yes|no]"))
+//			return true;
+//		else
+//			return false;
+//	}
 
 
 	/**
@@ -137,7 +137,8 @@ public class Lexer{
 	
 	
 	/**
-	 * 
+	 * lexical function, store the result tokens in a list
+	 * if undefined token, add an 'error'
 	 */
 	public static ArrayList<String> lexer(String str){
 		ArrayList<String> result = new ArrayList<String>();

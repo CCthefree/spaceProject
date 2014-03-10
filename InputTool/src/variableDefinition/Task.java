@@ -83,8 +83,6 @@ public class Task {
 	/**
 	 * function to analysis the content of task, include syntax and semantic
 	 * analysis
-	 * 
-	 * @return error index, -1 for no error
 	 */
 	public int contentCheck() {
 		this.errorList.clear();
@@ -225,22 +223,6 @@ public class Task {
 
 
 	/**
-	 * function to check whether there exist duplication of the name in task
-	 * list
-	 * 
-	 * @return true if two task have the same name, otherwise false
-	 */
-	private boolean hasSameName() {
-		for (Task task : Model.taskArray) {
-			if (!task.equals(this) && task.name.equals(this.name)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-
-	/**
 	 * function to analysis all the share resources written by the task, the
 	 * analysis result is adding the task name into 'writeTaskNames' of
 	 * corresponding share resources
@@ -255,6 +237,22 @@ public class Task {
 		}
 	}
 
+
+	/**
+	 * function to check whether there exist duplication of the name in task
+	 * list
+	 * 
+	 * @return true if two task have the same name, otherwise false
+	 */
+	private boolean hasSameName() {
+		for (Task task : Model.taskArray) {
+			if (!task.equals(this) && task.name.equals(this.name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 
 	/**
 	 * update information of the task according to its procedure

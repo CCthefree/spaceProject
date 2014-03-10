@@ -23,6 +23,16 @@ public class Model{
 	public static long commuTaskBound = -1;
 
 
+	/**
+	 * add a new interruption with given name
+	 */
+	public static Interruption addNewInter(String name){
+		Interruption inter = new Interruption();
+		inter.name = name;
+		Model.interArray.add(inter);
+		return inter;
+	}
+	
 
 	/**
 	 * add a new task with given name

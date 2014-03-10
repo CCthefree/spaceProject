@@ -18,9 +18,12 @@ public class Procedure {
 	public long bestTime;
 	public long worstTime;
 	public Statement_Sequence statement;
+	
 	public ArrayList<String> undefineTasks;
 	public ArrayList<String> undefineCVs;
-	public ArrayList<String> undefineSRs;
+	public ArrayList<String> undefineRSRs;
+	public ArrayList<String> undefineWSRs;
+	
 	public ArrayList<Task> containedTasks;
 	public ArrayList<ControlVariable> containedCVs;
 	public ArrayList<String> readSRs;
@@ -48,9 +51,9 @@ public class Procedure {
 		this.name = n;
 		this.description = desc;
 
-		this.undefineCVs = new ArrayList<String>();	
-		this.undefineTasks = new ArrayList<String>();
-		this.undefineSRs = new ArrayList<String>();
+//		this.undefineCVs = new ArrayList<String>();	
+//		this.undefineTasks = new ArrayList<String>();
+//		this.undefineSRs = new ArrayList<String>();
 		this.statement = new Statement_Sequence(n, desc);
 
 		this.statement.check();
@@ -77,9 +80,7 @@ public class Procedure {
 		if(this.containedTasks == null)
 			this.containedTasks = new ArrayList<Task>();
 		
-		if(this.containedTasks.contains(task))
-			return;
-		else
+		if(!this.containedTasks.contains(task))
 			this.containedTasks.add(task);
 	}
 	
@@ -91,9 +92,7 @@ public class Procedure {
 		if(this.containedCVs == null)
 			this.containedCVs = new ArrayList<ControlVariable>();
 		
-		if(this.containedCVs.contains(cv))
-			return;
-		else
+		if(!this.containedCVs.contains(cv))
 			this.containedCVs.add(cv);
 	}
 	
@@ -105,10 +104,8 @@ public class Procedure {
 		if(this.readSRs == null)
 			this.readSRs = new ArrayList<String>();
 		
-		if(this.readSRs.contains(sr))
-			return;
-		else
-			this.readSRs.add(sr);
+		if(!this.readSRs.contains(sr))
+			this.readSRs.add(sr);	
 	}
 	
 	
@@ -119,10 +116,8 @@ public class Procedure {
 		if(this.writeSRs == null)
 			this.writeSRs = new ArrayList<String>();
 		
-		if(this.writeSRs.contains(sr))
-			return;
-		else
-			this.writeSRs.add(sr);
+		if(!this.writeSRs.contains(sr))
+			this.writeSRs.add(sr);	
 	}
 
 
@@ -134,10 +129,8 @@ public class Procedure {
 		if (this.undefineTasks == null)
 			this.undefineTasks = new ArrayList<String>();
 
-		if (this.undefineTasks.contains(name))
-			return;
-		else
-			this.undefineTasks.add(name);
+		if (!this.undefineTasks.contains(name))
+			this.undefineTasks.add(name);	
 	}
 
 
@@ -148,24 +141,32 @@ public class Procedure {
 		if (this.undefineCVs == null)
 			this.undefineCVs = new ArrayList<String>();
 
-		if (this.undefineCVs.contains(name))
-			return;
-		else
-			this.undefineCVs.add(name);
+		if (!this.undefineCVs.contains(name))
+			this.undefineCVs.add(name);		
 	}
 	
 	
 	/**
-	 * add the name of a undefinedTask into 'undefineSRs'
+	 * add the name of a undefined share resource into 'undefineRSRs'
 	 */
-	public void addUndefinedSRs(String name) {
-		if (this.undefineSRs == null)
-			this.undefineSRs = new ArrayList<String>();
+	public void addUndefinedRSRs(String name) {
+		if (this.undefineRSRs == null)
+			this.undefineRSRs = new ArrayList<String>();
 
-		if (this.undefineSRs.contains(name))
-			return;
-		else
-			this.undefineSRs.add(name);
+		if (!this.undefineRSRs.contains(name))
+			this.undefineRSRs.add(name);
+	}
+	
+	
+	/**
+	 * add the name of a undefined share resource into 'undefineWSRs'
+	 */
+	public void addUndefinedWSRs(String name) {
+		if (this.undefineWSRs == null)
+			this.undefineWSRs = new ArrayList<String>();
+
+		if (!this.undefineWSRs.contains(name))
+			this.undefineWSRs.add(name);
 	}
 
 }
