@@ -40,17 +40,6 @@ public class ShareResource{
 
 
 	/**
-	 * constructor with parameter
-	 */
-	public ShareResource(String name) {
-		this.name = name;
-		this.readTaskNames = new ArrayList<String>();
-		this.writeTaskNames = new ArrayList<String>();
-		this.errorList = new ArrayList<Integer>();
-	}
-
-
-	/**
 	 * assign value to members of share resource
 	 */
 	public void setValue(String str){

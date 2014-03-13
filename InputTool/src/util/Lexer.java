@@ -12,16 +12,13 @@ import java.util.ArrayList;
 public class Lexer{
 
 	/**
-	 * test whether a string is a reserved word
+	 * test whether a string is a IRQ
 	 */
-//	public static boolean isRword(String str){
-//		if(str.equals("[task|interruption|controlVariable|shareResource|taskSequence|interval|commuTaskBound |close|open|read|write|if|else|yes|no]"))
-//			return true;
-//		else
-//			return false;
-//	}
+	public static boolean isIRQ(String str){
+		return str.matches("[a-z]+[0-9]+");
+	}
 
-
+	
 	/**
 	 * test whether a string is a variable name, start with a character and
 	 * composed by digits、characters and '_'

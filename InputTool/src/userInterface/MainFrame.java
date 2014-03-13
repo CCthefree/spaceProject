@@ -42,6 +42,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import util.ErrorInfo;
+import util.Lexer;
 import util.Notifier;
 import variableDefinition.ControlVariable;
 import variableDefinition.Interruption;
@@ -1367,8 +1368,7 @@ public class MainFrame extends JFrame implements WindowListener{
 
 			public void actionPerformed(ActionEvent e){
 				DefaultTableModel tableModel = (DefaultTableModel) cvTable.getModel();
-				ControlVariable cv = new ControlVariable();
-				Model.controlVariableArray.add(cv);
+				ControlVariable cv = Model.addNewCV("");
 				
 				tableModel.addRow(ControlVariable.getContent(cv));			
 			}
@@ -1404,7 +1404,7 @@ public class MainFrame extends JFrame implements WindowListener{
 
 			public void actionPerformed(ActionEvent e){
 				DefaultTableModel tableModel = (DefaultTableModel) srTable.getModel();
-				ShareResource sr = new ShareResource();
+				ShareResource sr = new ShareResource();//TODO
 				Model.shareResourceArray.add(sr);
 				
 				tableModel.addRow(ShareResource.getContent(sr));
@@ -1456,8 +1456,7 @@ public class MainFrame extends JFrame implements WindowListener{
 			
 			public void actionPerformed(ActionEvent e) {
 				DefaultTableModel tableModel = (DefaultTableModel) intervalTable.getModel();
-				Interval interval = new Interval();
-				Model.intervalArray.add(interval);
+				Interval interval = Model.addNewInterval("");
 				
 				tableModel.addRow(Interval.getContent(interval));
 			}
@@ -1493,10 +1492,9 @@ public class MainFrame extends JFrame implements WindowListener{
 			
 			public void actionPerformed(ActionEvent e) {
 				String bound = jtf_commuTask.getText();
-				if (bound.equals("") || !bound.matches("-1|[0-9]+"))
-					Notifier.ErrorPrompt("输入的内容不符合规范！");
-				else 
-					Model.commuTaskBound = Integer.parseInt(bound);
+				Model.commuTaskBound = Lexer.toLong(bound);
+				
+				ModelInfoCheck.totalAnalysis();
 			}
 		});
 		
@@ -1570,7 +1568,6 @@ public class MainFrame extends JFrame implements WindowListener{
 			if(reader.initModel()){
 				this.dispose();
 				new MainFrame(fileName);
-//				setContent();
 			}
 			else 
 				Notifier.ErrorPrompt("读取文件失败，模型文件存在语法错误!");
@@ -1693,8 +1690,7 @@ public class MainFrame extends JFrame implements WindowListener{
 			token[j] = str;
 		}
 		
-		interval.setValue(token);
-		
+		interval.setValue(token);	
 	}
 	
 	/**

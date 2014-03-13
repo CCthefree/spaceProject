@@ -22,7 +22,8 @@ public class Model{
 	public static ArrayList<Interval> intervalArray = new ArrayList<Interval>();
 	public static long commuTaskBound = -1;
 
-
+///////////////////////////////////////////////////////////////////////////////
+	
 	/**
 	 * add a new interruption with given name
 	 */
@@ -54,6 +55,17 @@ public class Model{
 		Model.controlVariableArray.add(cv);
 		return cv;
 	}
+	
+	
+	/**
+	 * add a new interval with given name(IRQ)
+	 */
+	public static Interval addNewInterval(String name){
+		Interval val = new Interval();
+		val.IRQ = name;
+		Model.intervalArray.add(val);
+		return val;
+	}
 
 	
 	/**
@@ -70,7 +82,8 @@ public class Model{
 			return null;
 		}
 		else{
-			ShareResource sr = new ShareResource(name);
+			ShareResource sr = new ShareResource();
+			sr.name = name;
 			Model.shareResourceArray.add(sr);
 			return sr;
 		}
@@ -91,6 +104,8 @@ public class Model{
 		return false;
 	}
 	
+	
+///////////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * get share resource with given name return null if no such share resource
@@ -143,5 +158,19 @@ public class Model{
 				return task;
 		}
 		return null;
+	}
+	
+	
+/////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * check whether a string is a defined IRQ in interval list
+	 */
+	public static boolean definedIRQ(String str){
+		for(Interval val : Model.intervalArray){
+			if(val.IRQ.equals(str))
+				return true;
+		}
+		return false;
 	}
 }

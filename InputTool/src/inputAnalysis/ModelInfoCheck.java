@@ -139,13 +139,6 @@ public class ModelInfoCheck{
 		}
 		MainFrame.renderer(MainFrame.interTable, interLocations);
 
-
-		/**时序逻辑**/
-		for (TaskSequence seq : Model.taskSequences){
-			int errorIndex = seq.contentCheck();
-			if(errorIndex != define.noError)
-				otherInfoCorrect = false;
-		}
 		
 		/**中断间隔*/
 		index = 0;
@@ -165,7 +158,20 @@ public class ModelInfoCheck{
 		}
 		MainFrame.renderer(MainFrame.intervalTable, intervalLocations);
 		
-			
+		
+		/**打断通信子过程的中断时间限制**/
+		if(Model.commuTaskBound < -1){
+			ErrorInfo.add("【打断通信子过程的中断时间上限】输入数据错误！"); 
+			otherInfoCorrect = false;
+		}
+		
+		
+		/**时序逻辑**/
+		for (TaskSequence seq : Model.taskSequences){
+			int errorIndex = seq.contentCheck();
+			if(errorIndex != define.noError)
+				otherInfoCorrect = false;
+		}	
 		
 		/////////////////////////////////////////////////对模型信息的分析
 		if (computeInfoCorrect == true) {

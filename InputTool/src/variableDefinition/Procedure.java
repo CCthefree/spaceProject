@@ -51,9 +51,6 @@ public class Procedure {
 		this.name = n;
 		this.description = desc;
 
-//		this.undefineCVs = new ArrayList<String>();	
-//		this.undefineTasks = new ArrayList<String>();
-//		this.undefineSRs = new ArrayList<String>();
 		this.statement = new Statement_Sequence(n, desc);
 
 		this.statement.check();

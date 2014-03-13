@@ -30,7 +30,7 @@ public class Statement_CloseInter extends Statement {
 		List<String> token = Lexer.lexer(this.content);
 		int errorIndex = syntaxCheck(token);
 		if (errorIndex == define.noError) {
-			semanticCheck(token.get(1));
+			errorIndex = semanticCheck(token.get(1));
 		}
 		else
 			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误！\n";
@@ -45,7 +45,7 @@ public class Statement_CloseInter extends Statement {
 	private int syntaxCheck(List<String> token) {
 		if (token.size() != 3)
 			return define.syntaxError;
-		if (!(token.get(0).equals("close") && token.get(1).matches("[a-z]+[0-9]+") && token.get(2)
+		if (!(token.get(0).equals("close") && Lexer.isIRQ(token.get(1)) && token.get(2)
 				.equals(";")))
 			return define.syntaxError;
 
@@ -57,7 +57,12 @@ public class Statement_CloseInter extends Statement {
 	 * 
 	 */
 	private int semanticCheck(String str) {
-
+		if(! Model.definedIRQ(str)){
+			this.errorInfo += "【处理程序】" + this.root + "：未定义的中断号" + str + "!\n";
+			return define.semanticError;
+		}
+		
 		return define.noError;
 	}
+
 }

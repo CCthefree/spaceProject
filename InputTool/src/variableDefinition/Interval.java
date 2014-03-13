@@ -61,7 +61,7 @@ public class Interval {
 	 * 语法检查
 	 */
 	private void syntaxCheck() {
-		if (!this.IRQ.matches("[a-z]+[0-9]+"))
+		if (!Lexer.isIRQ(this.IRQ))
 			this.errorList.add(0);
 
 		this.longLeastInterval = Lexer.toLong(this.leastInterval);

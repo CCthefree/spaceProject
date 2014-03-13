@@ -118,7 +118,7 @@ public class Interruption{
 		if(this.intPrio == Integer.MIN_VALUE || this.intPrio < -1)
 			this.errorList.add(1);
 		
-		if(!this.IRQ.matches("no|[a-z]+[0-9]+"))
+		if(!this.IRQ.equals("no") && !Lexer.isIRQ(this.IRQ))
 			this.errorList.add(2);
 		
 		if(!(this.type.equals("periodical") || this.type.equals("random")))
