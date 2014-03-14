@@ -8,9 +8,9 @@ public class Event {
 
 	private int index; // index of this event in event path
 
-	private int procIndex; // index of procedure, for event type 0,1,2,3;
+	private int procIndex; // index of procedure, for all events
 	
-	private String statement;	//processing statement, for event 2;
+	private String statement;	//processing statement, for move event
 
 
 	/**
@@ -32,14 +32,14 @@ public class Event {
 	public String genLabel() {
 		String result = "";
 		//interruption fire event
-		if (this.type == 0 && this.procIndex != -1)
+		if (this.type == define.trans && this.procIndex != -1)
 			result += Result.getInterName(this.procIndex) + "触发";
 		//procedure pop out event
-		else if (this.type == 3)
+		else if (this.type == define.pop)
 			result += Result.getInterName(this.procIndex) + "出栈";
 		//statement process event
 		else{ 
-			 if (this.type == 1)
+			 if (this.type == define.push)
 				result += Result.getInterName(this.procIndex) + "进栈,";
 			 else 
 				result += Result.getInterName(this.procIndex);

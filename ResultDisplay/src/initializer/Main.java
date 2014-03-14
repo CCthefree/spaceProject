@@ -24,7 +24,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		fileLoc = System.getProperty("user.dir");
-//		fileLoc = "d:\\bmc";
+		fileLoc = "d:\\bmc";
 		fileName = fileLoc + "\\result.xml";
 		
 		Result rs = new Result();

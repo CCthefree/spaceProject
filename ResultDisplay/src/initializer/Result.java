@@ -47,13 +47,13 @@ public class Result {
 	 */
 	public static String genFaultInfo() {
 		String result = "";
-		if (Result.type == 1)
+		if (Result.type == define.interLost)
 			result += "中断" + Result.name + "丢失 ";
-		else if (Result.type == 2)
+		else if (Result.type == define.procOT)
 			result = "中断处理程序" + Result.name + "超出时间上界: " + Result.upbnd;
-		else if (Result.type == 3)
+		else if (Result.type == define.taskOT)
 			result = "子过程" + Result.name + "超出时间上界: " + Result.upbnd;
-		else if (Result.type == 4)
+		else if (Result.type == define.SRconflict)
 			result = "共享资源" + Result.name + "访问冲突";
 
 		return result;

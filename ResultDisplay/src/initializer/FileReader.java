@@ -48,14 +48,14 @@ public class FileReader {
 				getEvent(rs, root);
 
 				// 共享资源访问记录只在错误类型需要时才读入（其它情况下文件中不会有该数据，会导致读入出错）
-				if (this.faultType == 4)
+				if (this.faultType == define.SRconflict)
 					getSRRecord(rs, root);
 			}
 
 			return true;
 		}
 		catch (DocumentException e) {
-			JOptionPane.showMessageDialog(null, "找不到文件" + fileName);
+			JOptionPane.showMessageDialog(null, "文件" + fileName + "编码格式错误！");
 			e.printStackTrace();
 			return false;
 		}
