@@ -94,7 +94,7 @@ public class XMLFileReader {
 		catch (DocumentException e) {
 			recover();
 
-			JOptionPane.showMessageDialog(null, "找不到文件" + fileName);
+			JOptionPane.showMessageDialog(null, "文件" + fileName + "编码格式错误！");
 			e.printStackTrace();
 			return false;
 		}
@@ -111,7 +111,7 @@ public class XMLFileReader {
 	/**
 	 * initialize interruption information, include procedure
 	 */
-	public void initInterruption(Element root) {
+	private void initInterruption(Element root) {
 		List inters = root.element("interruption").elements("value");
 		if (inters == null)
 			return;
@@ -142,11 +142,8 @@ public class XMLFileReader {
 
 	/**
 	 * initialize control variable information
-	 * 
-	 * @param model
-	 * @param root
 	 */
-	public void initCV(Element root) {
+	private void initCV(Element root) {
 		List cvs = root.element("controlVariable").elements("value");
 		if (cvs == null)
 			return;
@@ -170,11 +167,8 @@ public class XMLFileReader {
 
 	/**
 	 * initialize share resource information
-	 * 
-	 * @param model
-	 * @param root
 	 */
-	public void initSR(Element root) {
+	private void initSR(Element root) {
 		List srs = root.element("shareResource").elements("value");
 		if (srs == null)
 			return;
@@ -193,7 +187,7 @@ public class XMLFileReader {
 	/**
 	 * initialize task
 	 */
-	public void initTask(Element root) {
+	private void initTask(Element root) {
 		List tasks = root.element("task").elements("value");
 		if (tasks == null)
 			return;
@@ -204,12 +198,12 @@ public class XMLFileReader {
 			String lbd = taskEle.elementText("lowerBound");
 			String ubd = taskEle.elementText("upperBound");
 			String finishTime = taskEle.elementText("finishTime");
-			String read = getSRList(taskEle.element("readSource"));
-			String write = getSRList(taskEle.element("writeSource"));
+			String readSR = taskEle.elementText("readSource");
+			String writeSR = taskEle.elementText("writeSource");
 			String commFlag = taskEle.elementText("commFlag");
 			String remark = taskEle.elementText("remark");
 
-			String values[] = new String[] { name, lbd, ubd, finishTime, read, write, commFlag, remark};
+			String values[] = new String[] { name, lbd, ubd, finishTime, readSR, writeSR, commFlag, remark};
 			Task task = new Task();
 			task.setValue(values);
 			Model.taskArray.add(task);
@@ -219,10 +213,8 @@ public class XMLFileReader {
 
 	/**
 	 * initialize task sequence
-	 * 
-	 * @param root
 	 */
-	public void initTaskSequence(Element root) {
+	private void initTaskSequence(Element root) {
 		List seqs = root.element("taskSequence").elements("value");
 		if (seqs == null)
 			return;
@@ -240,9 +232,8 @@ public class XMLFileReader {
 	
 	/**
 	 * initialize interval
-	 * @param root
 	 */
-	public void initInterval(Element root) {
+	private void initInterval(Element root) {
 		List intervals = root.element("interval").elements("value");
 		if (intervals == null)
 			return;
@@ -259,11 +250,11 @@ public class XMLFileReader {
 		}
 	}
 	
+	
 	/**
 	 * initialize communication task bound
-	 * @param root
 	 */
-	public void initCommuTaskBound(Element root) {
+	private void initCommuTaskBound(Element root) {
 		Element e = root.element("commuTaskBound");
 		String bound = e.elementText("value");
 		long longBound;
@@ -273,24 +264,8 @@ public class XMLFileReader {
 		Model.commuTaskBound = longBound;
 	}
 
-
-	public String getSRList(Element root) {
-		String result = "";
-
-		List names = root.elements("name");	// no read/write SRs
-		if (names == null || names.size() == 0)
-			return result;
-		else { // has read/write SRs
-			for (Iterator it = names.iterator(); it.hasNext();) {
-				Element name = (Element) it.next();
-				result += name.getText() + ",";
-			}
-			//去掉最后一个','
-			result = result.substring(0, result.length() - 1);
-			return result;
-		}	
-	}
-
+	
+///////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * backup current model information

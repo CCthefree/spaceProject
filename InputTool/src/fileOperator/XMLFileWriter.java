@@ -19,7 +19,6 @@ import variableDefinition.ControlVariable;
 import variableDefinition.Interruption;
 import variableDefinition.Interval;
 import variableDefinition.Model;
-import variableDefinition.Procedure;
 import variableDefinition.ShareResource;
 import variableDefinition.Task;
 import variableDefinition.TaskSequence;
@@ -151,19 +150,8 @@ public class XMLFileWriter {
 			value.addElement("lowerBound").addText(task.lowerBound);
 			value.addElement("upperBound").addText(task.upperBound);
 			value.addElement("finishTime").addText(task.finishTime);
-			
-			Element read = value.addElement("readSource");
-			ArrayList<String> readList = task.readVariable;
-			for(String sr : readList){
-				read.addElement("name").addText(sr);
-			}
-			
-			Element write = value.addElement("writeSource");
-			ArrayList<String> writeList = task.writeVariable;
-			for(String sr : writeList){
-				write.addElement("name").addText(sr);
-			}
-			
+			value.addElement("readSource").addText(task.getReadResource());
+			value.addElement("writeSource").addText(task.getWriteResource());
 			value.addElement("commFlag").addText(task.commFlag);
 			value.addElement("remark").addText(task.remark);
 		}

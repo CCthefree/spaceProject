@@ -1288,9 +1288,9 @@ public class MainFrame extends JFrame implements WindowListener{
 					
 					proc.setValue(proc.name, desc);
 
-					if (!proc.undefineCVs.isEmpty())
+					if (proc.undefineCVs != null && !proc.undefineCVs.isEmpty())
 						AddCVPanel.newInstance(getMainFrame(), proc.undefineCVs);
-					if (!proc.undefineTasks.isEmpty())
+					if (proc.undefineTasks != null && !proc.undefineTasks.isEmpty())
 						AddTaskPanel.newInstance(getMainFrame(), proc.undefineTasks);
 
 					ModelInfoCheck.totalAnalysis();
@@ -1570,7 +1570,7 @@ public class MainFrame extends JFrame implements WindowListener{
 				new MainFrame(fileName);
 			}
 			else 
-				Notifier.ErrorPrompt("读取文件失败，模型文件存在语法错误!");
+				Notifier.ErrorPrompt("读取文件失败!");
 		}
 	}
 	
@@ -1744,35 +1744,30 @@ public class MainFrame extends JFrame implements WindowListener{
 
 	@Override
 	public void windowOpened(WindowEvent e){
-		// TODO Auto-generated method stub
 
 	}
 
 
 	@Override
 	public void windowClosed(WindowEvent e){
-		// TODO Auto-generated method stub
 
 	}
 
 
 	@Override
 	public void windowIconified(WindowEvent e){
-		// TODO Auto-generated method stub
 
 	}
 
 
 	@Override
 	public void windowDeiconified(WindowEvent e){
-		// TODO Auto-generated method stub
 
 	}
 
 
 	@Override
 	public void windowActivated(WindowEvent e){
-		// TODO Auto-generated method stub
 
 	}
 
