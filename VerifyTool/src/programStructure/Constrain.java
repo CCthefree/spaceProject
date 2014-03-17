@@ -2,6 +2,8 @@ package programStructure;
 
 import java.util.ArrayList;
 
+import util.SubExpr;
+
 import fileOperator.Logger;
 
 /**

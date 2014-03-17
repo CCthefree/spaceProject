@@ -2,6 +2,7 @@ package programStructure;
 
 import java.util.ArrayList;
 
+import util.BoolExpr;
 import util.define;
 
 /**
@@ -27,6 +28,9 @@ public class ProgramPoint {
 
 	// call statement info
 	private String taskName;
+	
+	// open/close statement info
+	private String IRQ;
 
 	// if statement info
 	private ArrayList<BoolExpr> exprs;
@@ -50,14 +54,18 @@ public class ProgramPoint {
 
 
 	/**
-	 * constructor of call statement
+	 * constructor of call statement; open/close statement
 	 * 
 	 */
-	public ProgramPoint(int point, int nextPoint, int type, String taskName) {
+	public ProgramPoint(int point, int nextPoint, int type, String name) {
 		this.point = point;
 		this.nextPoint = nextPoint;
 		this.type = type;
-		this.taskName = taskName;
+		
+		if(type == define.call)
+			this.taskName = name;
+		else if(type == define.open || type == define.close)
+			this.IRQ = name;
 
 		genStatement();
 	}
@@ -90,7 +98,13 @@ public class ProgramPoint {
 		else if (this.type == define.call) {
 			result += this.taskName + "()";
 		}
-		else {
+		else if(this.type == define.open){
+			result += "open " + this.IRQ;
+		}
+		else if(this.type == define.close){
+			result += "close " + this.IRQ;
+		}
+		else if(this.type == define.IF){
 			int i = 0;
 			for (; i < this.exprs.size() - 1; i++)
 				result += this.exprs.get(i).getWholeExpr() + "&&";
@@ -130,6 +144,10 @@ public class ProgramPoint {
 		return taskName;
 	}
 
+	
+	public String getIRQ(){
+		return IRQ;
+	}
 
 	public ArrayList<BoolExpr> getExprs() {
 		return exprs;

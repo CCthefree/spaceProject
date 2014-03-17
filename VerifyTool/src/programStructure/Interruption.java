@@ -67,10 +67,11 @@ public class Interruption {
 		return IRQ;
 	}
 
+	
 	public char getType() {
 		return type;
 	}
-
+	
 
 	public long getPeriod() {
 		return period;

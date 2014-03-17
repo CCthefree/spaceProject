@@ -4,6 +4,7 @@ package programStructure;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.BoolExpr;
 import util.Lexer;
 import util.define;
 import fileOperator.PPTest;

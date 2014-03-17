@@ -6,8 +6,6 @@ import ita.ITALocation;
 
 import java.util.ArrayList;
 
-import programStructure.BoolExpr;
-import programStructure.CVMap;
 import programStructure.Interruption;
 import programStructure.Procedure;
 import programStructure.ProgramPoint;
@@ -54,44 +52,43 @@ public class Event {
 	public static ArrayList<Event> potentialEvents(GlobalState gs) {
 		ArrayList<Event> eventList = new ArrayList<Event>();
 		Event newEvent;
-
+		int topProcIndex = gs.getStack().getTopProc();
+		
 		//successor of interruption vector 
-		Interruption highestInter = Model.getInterAt(gs.getInterVec().getHighestInter());
-		Interruption topInter = Model.getInterAt(gs.getStack().getTopProc());
+		Interruption highestInter = Model.getInterAt(gs.highestInterIndex());
+		Interruption topInter = Model.getInterAt(topProcIndex);
 
 		int prioOfVec = (highestInter == null) ? Integer.MAX_VALUE : highestInter.getPriority();
 		int prioOfStack = (topInter == null) ? Integer.MAX_VALUE : topInter.getPriority();
 		if (prioOfVec < prioOfStack) { // there has higher priority interruption
 										// in interVec, return only this event
 			/** 事件1: 高级中断进入CPU栈，此时候选事件唯一 **/
-			newEvent = new Event(define.push, -1, gs.getInterVec().getHighestInter(), -1);
+			newEvent = new Event(define.push, -1, gs.highestInterIndex(), -1);
 			eventList.add(newEvent);
 
 			return eventList;
 		}
 
 		// successor of CPU stack procedure
-		if (!gs.getStack().isEmpty()) {
+		if (gs.getStack().getSize() > 0) {
 
-			Procedure topIp = Model.getProcAt(gs.getStack().getTopProc());
+			Procedure topIp = Model.getProcAt(topProcIndex);
 			int topPnt = gs.getStack().getTopPnt();
 
 			ProgramPoint pp = topIp.getPP(topPnt);
 			int newPnt = pp.getNextPoint();
-			if (pp.getType() == 'I') { // current point is if statement,
-										// test the boolExpr and set
-										// correct newPnt
-				if (testExpr(pp.getExprs(), gs.getCvMap()) == false)
+			if (pp.getType() == define.IF) { // current point is if statement, check boolExpr to determine newPnt
+				if (gs.checkBoolExpr(pp.getExprs()) == false)
 					newPnt = pp.getElsePoint();
 			}
 
 			if (newPnt == topIp.getEndPnt()) {	//新的程序点为procedure的结束点
 				/*** 事件3：procedure执行并出栈 **/
-				newEvent = new Event(define.pop, -1, gs.getStack().getTopProc(), -1);
+				newEvent = new Event(define.pop, -1, topProcIndex, -1);
 			}
 			else
 				/*** 事件2：procedure继续执行 **/
-				newEvent = new Event(define.move, -1, gs.getStack().getTopProc(), newPnt);
+				newEvent = new Event(define.move, -1, topProcIndex, newPnt);
 			
 			eventList.add(newEvent);
 		}
@@ -100,7 +97,7 @@ public class Event {
 		{
 			for (int i = 0; i < Model.getITACount(); i++) {
 
-				ITALocation loc = Model.getITAAt(i).getLocation(gs.getLocVec()[i]);
+				ITALocation loc = Model.getITAAt(i).getLocation(gs.getITALoc(i));
 				if (loc.getEdge() != null) {	//自动机当前位置有出边
 					int interIndex = loc.getEdge().getInterIndex();
 					/** 事件0：自动机事件 **/
@@ -118,45 +115,6 @@ public class Event {
 		return eventList;
 	}
 
-
-	/**
-	 * test the value of boolean expressions
-	 * 
-	 * @param exprs
-	 *            connect by '&&'
-	 * @return
-	 */
-	public static boolean testExpr(ArrayList<BoolExpr> exprs, CVMap cvMap) {
-		if (exprs == null || exprs.isEmpty()) {
-			return true; // TODO
-		}
-
-		for (BoolExpr expr : exprs) {
-			boolean flag = false;
-
-			String cv = expr.getCvName();
-			String op = expr.getOp();
-			int testValue = expr.getValue();
-			int realValue = cvMap.getValue(cv);
-
-			if (op.equals(">") && realValue > testValue)
-				flag = true;
-			else if (op.equals(">=") && realValue >= testValue)
-				flag = true;
-			else if (op.equals("<") && realValue < testValue)
-				flag = true;
-			else if (op.equals("<=") && realValue <= testValue)
-				flag = true;
-			else if (op.equals("==") && realValue == testValue)
-				flag = true;
-			else if (op.equals("!=") && realValue != testValue)
-				flag = true;
-
-			if (flag == false)// one false, all false
-				return false;
-		}
-		return true;
-	}
 
 
 	/**

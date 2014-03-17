@@ -22,4 +22,12 @@ public class IntervalMap {
 	public void add(String IRQ, long value){
 		this.intervalMap.put(IRQ, value);
 	}
+	
+	
+	/**
+	 * 
+	 */
+	public long valueof(String IRQ){
+		return this.intervalMap.containsKey(IRQ) ? this.intervalMap.get(IRQ) : -1;
+	}
 }

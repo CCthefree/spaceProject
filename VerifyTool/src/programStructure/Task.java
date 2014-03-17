@@ -51,6 +51,26 @@ public class Task {
 		}
 	}
 
+	/**
+	 * check whether task read res
+	 */
+	public boolean hasRead(String res) {
+		int index = Model.getSRArray().getIndex(res);
+		if (readSR.contains(index))
+			return true;
+		else return false;
+	}
+	
+	/**
+	 * check whether task write res
+	 */
+	public boolean hasWritten(String res) {
+		int index = Model.getSRArray().getIndex(res);
+		if (writeSR.contains(index))
+			return true;
+		else return false;
+	}
+	
 
 	public String getName() {
 		return this.name;
@@ -92,26 +112,6 @@ public class Task {
 
 	public void setWriteSR(ArrayList<Integer> writeSR) {
 		this.writeSR = writeSR;
-	}
-	
-	/**
-	 * check whether task read res
-	 */
-	public boolean hasRead(String res) {
-		int index = Model.getSRArray().getIndex(res);
-		if (readSR.contains(index))
-			return true;
-		else return false;
-	}
-	
-	/**
-	 * check whether task write res
-	 */
-	public boolean hasWritten(String res) {
-		int index = Model.getSRArray().getIndex(res);
-		if (writeSR.contains(index))
-			return true;
-		else return false;
 	}
 
 }

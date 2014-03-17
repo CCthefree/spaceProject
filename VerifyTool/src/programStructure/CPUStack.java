@@ -93,7 +93,6 @@ public class CPUStack {
 	/**
 	 * set the program point of procedure at top of CPU stack
 	 * 
-	 * @param newPnt
 	 * @return false if stack is empty
 	 */
 	public boolean setPnt(int newPnt) {
@@ -103,16 +102,6 @@ public class CPUStack {
 			this.stack.peek().point = newPnt;
 			return true;
 		}
-	}
-
-
-	/**
-	 * test whether the CPU stack is empty
-	 * 
-	 * @return
-	 */
-	public boolean isEmpty() {
-		return this.stack.isEmpty();
 	}
 
 

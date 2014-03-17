@@ -1,4 +1,4 @@
-package programStructure;
+package util;
 
 /**
  * class of subtract expression class, in form of <firstPara, secondPara>

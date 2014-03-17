@@ -1,4 +1,4 @@
-package programStructure;
+package util;
 
 /**
  * tuple of boolean expression

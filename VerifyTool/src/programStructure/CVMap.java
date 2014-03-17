@@ -43,23 +43,18 @@ public class CVMap {
 			this.cvMap.put(name, newValue);
 			return true;
 		}
-		else {
+		else
 			return false;
-		}
 	}
 
 
 	/**
 	 * get the value of 'name'
 	 * 
-	 * @return MIN_VALUE if no such variable name
+	 * @return -1 if no such variable name
 	 */
 	public int getValue(String name) {
-		if (this.cvMap.containsKey(name))
-			return this.cvMap.get(name);
-		else {
-			return Integer.MIN_VALUE;
-		}
+		return this.cvMap.containsKey(name) ? this.cvMap.get(name) : -1;
 	}
 
 

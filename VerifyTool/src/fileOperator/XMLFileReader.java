@@ -60,6 +60,9 @@ public class XMLFileReader {
 			
 			//read ITA
 			initITANet(root);
+			
+			//read interruption bound of communication task
+			initCommBound(root);
 
 			return true;
 
@@ -161,6 +164,9 @@ public class XMLFileReader {
 	}
 	
 	
+	/**
+	 * initialize interval info
+	 */
 	private void initInterval(Element root){
 		List intervals = root.element("interval").elements("value");
 		if(intervals == null)
@@ -172,6 +178,18 @@ public class XMLFileReader {
 			String value = interval.elementText("leastInterval");
 			Model.addInterval(IRQ, value);
 		}
+	}
+	
+	
+	/**
+	 * initialize communication task bound info
+	 */
+	private void initCommBound(Element root){
+		Element bound = root.element("commuTaskBound").element("value");
+		if(bound == null)
+			return ;
+		
+		Model.initCommuBound(bound.getText());
 	}
 
 	/**

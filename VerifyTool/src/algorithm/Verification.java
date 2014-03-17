@@ -14,8 +14,8 @@ import programStructure.Interruption;
 import programStructure.Procedure;
 import programStructure.ProgramPoint;
 import programStructure.SRArray;
-import programStructure.SubExpr;
 import programStructure.Task;
+import util.SubExpr;
 import util.define;
 import z3.Z3;
 
@@ -23,70 +23,6 @@ import com.microsoft.z3.Z3Exception;
 
 import fileOperator.Logger;
 import fileOperator.ResultWriter;
-
-/**
- * class to record the restore information of an event
- * 
- * @author zengke.cai
- * 
- */
-class RestoreInfo {
-
-	int type; // type of event
-
-	// info for transition event
-	int ITAIndex; // index of ITA
-
-	int preLoc; // present location
-
-	// info for push event
-	int procIndex; // index of push in procedure
-
-	// info for move/pop event
-	int prePnt; // present program point
-
-	// info for pop event
-	int preProc;
-
-	// shared info for move/pop event
-	String cvName; // control variable name, use when statement at prePnt is
-					// assign statement
-	int preValue; // present value of control variable
-
-
-	public RestoreInfo(int type) {
-		this.type = type;
-		this.cvName = "";
-	}
-
-}
-
-
-/**
- * class of restore information for share resource
- * 
- * @author zengke.cai
- * 
- */
-class SRRestoreInfo {
-
-	ArrayList<Integer> incRead; // list of indexes of SR that should increase
-								// reading count
-
-	ArrayList<Integer> incWrite; // list of indexes of SR that should increase
-									// writing count
-
-	ArrayList<Integer> decRead; // list of indexes of SR that should decrease
-								// reading count
-
-	ArrayList<Integer> decWrite; // list of indexes of SR that should decrease
-									// writing count
-
-
-	public SRRestoreInfo() {
-
-	}
-}
 
 
 /**
@@ -366,7 +302,7 @@ public class Verification {
 
 
 //////////////////////////////////////////////////////event constrains///////////////////////////////////////////////
-	
+
 	/**
 	 * 生成当前event所对应的constraint, 当前event还未加入eventPath
 	 */
@@ -379,7 +315,7 @@ public class Verification {
 		/** ITA transition event **/
 		if (e.getType() == define.trans) {
 			int ITAIndex = e.getITAIndex();
-			int curLoc = this.globalstate.getLocVec()[ITAIndex];
+			int curLoc = this.globalstate.getITALoc(ITAIndex);
 			ITA ita = Model.getITAAt(ITAIndex);
 			ITAEdge edge = ita.getLocation(curLoc).getEdge();
 			String op = edge.getOp();
@@ -481,7 +417,7 @@ public class Verification {
 		ArrayList<Constrain> gsCons = new ArrayList<Constrain>();
 
 		// 当前状态CPU栈非空，生成栈的约束
-		if (!this.globalstate.getStack().isEmpty()) {
+		if (this.globalstate.getStack().getSize() > 0) {
 			ArrayList<Constrain> stackCons = genStackCons();
 			gsCons.addAll(stackCons);
 		}
@@ -589,8 +525,6 @@ public class Verification {
 
 	/**
 	 * generate constrains to the new event by ITA location invariant
-	 * 
-	 * @return
 	 */
 	public ArrayList<Constrain> genITACons() {
 		ArrayList<Constrain> cons = new ArrayList<Constrain>();
@@ -599,14 +533,13 @@ public class Verification {
 		if (curPoint <= 0) // 已限定第一个事件时间点为0，所以这里不用生成
 			return cons;
 
-		int[] locVec = this.globalstate.getLocVec();
-		for (int itaIndex = 0; itaIndex < locVec.length; itaIndex++) {// i表示ITAIndex
+		for (int itaIndex = 0; itaIndex < Model.getITACount(); itaIndex++) {// i表示ITAIndex
 			ITA ita = Model.getITAAt(itaIndex);
-			String op = ita.getLocation(locVec[itaIndex]).getOp();
+			String op = ita.getLocation(this.globalstate.getITALoc(itaIndex)).getOp();
 			if (!op.equals("")) {// location上存在时间的约束
-				int value = ita.getLocation(locVec[itaIndex]).getValue();
+				int value = ita.getLocation(this.globalstate.getITALoc(itaIndex)).getValue();
 
-				if (ita.getInitLoc() == locVec[itaIndex]) // 如果自动机i在初始位置，设置约束为到时间点0的表达式
+				if (ita.getInitLoc() == this.globalstate.getITALoc(itaIndex)) // 如果自动机i在初始位置，设置约束为到时间点0的表达式
 					cons.add(new Constrain(curPoint, -1, op, value));
 				else {// 否则，找到事件路径中最近的该自动机上的转换
 					int j = curPoint - 1;
@@ -706,9 +639,6 @@ public class Verification {
 
 	/**
 	 * set restore information according to present handling event
-	 * 
-	 * @param e
-	 * @return
 	 */
 	public RestoreInfo setRestoreInfo(Event e) {
 		int type = e.getType();
@@ -718,7 +648,7 @@ public class Verification {
 		if (type == define.trans) {
 			// record present ITA index and location
 			rInfo.ITAIndex = e.getITAIndex();
-			rInfo.preLoc = this.globalstate.getLocVec()[rInfo.ITAIndex];
+			rInfo.preLoc = this.globalstate.getITALoc(rInfo.ITAIndex);
 		}
 
 		/** push in new procedure event **/
@@ -731,11 +661,14 @@ public class Verification {
 			rInfo.prePnt = this.globalstate.getStack().getTopPnt();
 			Procedure proc = Model.getInterAt(this.globalstate.getStack().getTopProc()).getIP();
 			ProgramPoint pp = proc.getPP(rInfo.prePnt);
-			if (pp.getType() == define.assign) { // if present statement if assign statement
+			if (pp.getType() == define.assign) { // if present statement is assign statement
 				// record the control variable name and value
 				rInfo.cvName = pp.getCvName();
-				rInfo.preValue = this.globalstate.getCvMap().getValue(rInfo.cvName);
+				rInfo.preValue = this.globalstate.getCVValue(rInfo.cvName);
 			}
+			//if present statement is open/close statement
+			else if(pp.getType() == define.open || pp.getType() == define.close)
+				rInfo.IRQ = pp.getIRQ();
 
 			if (type == define.pop) // procedure pop out event, record previous procedure index
 				rInfo.preProc = this.globalstate.getStack().getTopProc();
@@ -755,18 +688,18 @@ public class Verification {
 		/** restore ITA location **/
 		if (type == define.trans) {
 
-			this.globalstate.getLocVec()[rInfo.ITAIndex] = rInfo.preLoc;
+			this.globalstate.setITALoc(rInfo.ITAIndex, rInfo.preLoc);
 			// if the edge has interruption, reset 'interVec'
 			ITAEdge edge = Model.getITAAt(rInfo.ITAIndex).getLocation(rInfo.preLoc).getEdge();
 			if (edge.getInterIndex() != -1)
-				this.globalstate.getInterVec().setFalse(edge.getInterIndex());
+				this.globalstate.setInterFlag(edge.getInterIndex(), false);
 		}
 
 		/** restore stack and vector **/
 		else if (type == define.push) {
 			// pop out new procedure and reset interruption vector
 			this.globalstate.getStack().pop();
-			this.globalstate.getInterVec().setTrue(rInfo.procIndex);
+			this.globalstate.setInterFlag(rInfo.procIndex, true);
 		}
 
 		/** restore CPU stack and control variable **/
@@ -777,7 +710,10 @@ public class Verification {
 				this.globalstate.getStack().setPnt(rInfo.prePnt);
 
 			if (!rInfo.cvName.equals("")) {
-				this.globalstate.getCvMap().setValue(rInfo.cvName, rInfo.preValue);
+				this.globalstate.setCVValue(rInfo.cvName, rInfo.preValue);
+			}
+			if(!rInfo.IRQ.equals("")){
+				this.globalstate.reverse(rInfo.IRQ);
 			}
 		}
 	}

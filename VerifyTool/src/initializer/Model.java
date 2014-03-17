@@ -10,7 +10,6 @@ import programStructure.CVMap;
 import programStructure.Interruption;
 import programStructure.IntervalMap;
 import programStructure.Procedure;
-import programStructure.ProgramPoint;
 import programStructure.SRArray;
 import programStructure.Task;
 
@@ -33,13 +32,12 @@ public class Model {
 	
 	private static ArrayList<ITA> ITANet = new ArrayList<ITA>(); // net of interruption timed automata
 
+	private static long commuBound;	//time bound of interruption that interrupt communication task
 	
 /////////////////////////////////////////////////////////////////////////////	
 	
 	/**
 	 * add a new control variable into model
-	 * 
-	 * @param : data get from input file, all in string form
 	 */
 	public static void addCV(String name, String value) {
 		Model.cvMap.add(name, Integer.parseInt(value));
@@ -56,8 +54,6 @@ public class Model {
 	
 	/**
 	 * add a new interval into model
-	 * 
-	 * @param : data get from input file, all in string form
 	 */
 	public static void addInterval(String IRQ, String value){
 		Model.intervalMap.add(IRQ, Long.parseLong(value));
@@ -94,6 +90,14 @@ public class Model {
 		Task task = new Task(name, lb, ub, ft, readSR, writeSR, commFlag);
 		Model.taskArray.add(task);
 	}
+	
+	
+	/**
+	 * initialize commuBound info
+	 */
+	public static void initCommuBound(String bound){
+		Model.commuBound = Long.parseLong(bound);
+	}
 
 ////////////////////////////////////////////////////////////////////////////////////////	
 	
@@ -103,11 +107,10 @@ public class Model {
 	 * @return null if index is illegal
 	 */
 	public static ITA getITAAt(int index) {
-		if (index >= Model.ITANet.size() || index < 0)
+		if (index < 0 || index >= Model.ITANet.size())
 			return null;
-		else {
+		else 
 			return Model.ITANet.get(index);
-		}
 	}
 
 
@@ -117,7 +120,7 @@ public class Model {
 	 * @return null if index is illegal
 	 */
 	public static Interruption getInterAt(int index) {
-		if (index >= Model.interArray.size() || index < 0)
+		if (index < 0 || index >= Model.interArray.size())
 			return null;
 		else
 			return Model.interArray.get(index);
@@ -130,7 +133,7 @@ public class Model {
 	 * @return null if index is illegal
 	 */
 	public static Procedure getProcAt(int index) {
-		if (index >= Model.interArray.size() || index < 0)
+		if (index < 0 || index >= Model.interArray.size())
 			return null;
 		else
 			return Model.interArray.get(index).getIP();
@@ -140,20 +143,14 @@ public class Model {
 	/**
 	 * get the statement of procedure at certain program point
 	 * 
-	 * @param procIndex : index of procedure
-	 * @param pnt : program point
 	 * @return "" if parameters are illegal
 	 */
 	public static String getStatement(int procIndex, int pnt) {
 		String result = "";
 
-		Interruption inter = Model.getInterAt(procIndex);
-		if (inter != null) {
-			ProgramPoint pp = inter.getIP().getPP(pnt);
-			if (pp != null)
-				result = pp.getStatement();
-		}
-
+		Procedure proc = Model.getProcAt(procIndex);
+		if (proc != null && proc.getPP(pnt) != null)
+			result = proc.getPP(pnt).getStatement();
 		return result;
 	}
 	
@@ -168,6 +165,16 @@ public class Model {
 			if (task.getName().equals(name))
 				return task;
 		return null;
+	}
+	
+	
+	/**
+	 * get the interval of given IRQ
+	 * 
+	 * @return -1 if intervalMap doesn't contains key 'IRQ'
+	 */
+	public static long getInterval(String IRQ){
+		return Model.intervalMap.valueof(IRQ);
 	}
 	
 	
@@ -204,7 +211,6 @@ public class Model {
 	}
 
 
-
 	public static int getITACount() {
 		return Model.ITANet.size();
 	}
@@ -212,6 +218,11 @@ public class Model {
 
 	public static int getInterCount() {
 		return Model.interArray.size();
+	}
+	
+	
+	public static long getCommuBound(){
+		return Model.commuBound;
 	}
 
 
