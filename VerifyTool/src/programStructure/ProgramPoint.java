@@ -2,6 +2,8 @@ package programStructure;
 
 import java.util.ArrayList;
 
+import util.define;
+
 /**
  * class of program point
  * 
@@ -12,8 +14,7 @@ public class ProgramPoint {
 	// common info
 	private int point; // current point
 
-	private char type; // type of statement at this
-						// point,'A'表示赋值语句，'C'表示子过程，'I'表示if语句
+	private int type; // type of statement at this
 
 	private String statement; // the statement at this point
 
@@ -37,7 +38,7 @@ public class ProgramPoint {
 	 * constructor of assign statement
 	 * 
 	 */
-	public ProgramPoint(int point, int nextPoint, char type, String cvName, int assignValue) {
+	public ProgramPoint(int point, int nextPoint, int type, String cvName, int assignValue) {
 		this.point = point;
 		this.nextPoint = nextPoint;
 		this.type = type;
@@ -52,7 +53,7 @@ public class ProgramPoint {
 	 * constructor of call statement
 	 * 
 	 */
-	public ProgramPoint(int point, int nextPoint, char type, String taskName) {
+	public ProgramPoint(int point, int nextPoint, int type, String taskName) {
 		this.point = point;
 		this.nextPoint = nextPoint;
 		this.type = type;
@@ -66,7 +67,7 @@ public class ProgramPoint {
 	 * constructor of if statement
 	 * 
 	 */
-	public ProgramPoint(int point, int nextPoint, char type, ArrayList<BoolExpr> exprs,
+	public ProgramPoint(int point, int nextPoint, int type, ArrayList<BoolExpr> exprs,
 			int elsePoint) {
 		this.point = point;
 		this.nextPoint = nextPoint;
@@ -83,10 +84,10 @@ public class ProgramPoint {
 	 */
 	public void genStatement() {
 		String result = "";
-		if (this.type == 'A') {
+		if (this.type == define.assign) {
 			result += this.cvName + " = " + this.assignValue;
 		}
-		else if (this.type == 'C') {
+		else if (this.type == define.call) {
 			result += this.taskName + "()";
 		}
 		else {
@@ -105,7 +106,7 @@ public class ProgramPoint {
 	}
 
 
-	public char getType() {
+	public int getType() {
 		return type;
 	}
 

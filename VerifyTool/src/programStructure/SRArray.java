@@ -50,7 +50,6 @@ public class SRArray {
 	/**
 	 * increase read number of SR at 'index'
 	 * 
-	 * @param index
 	 * @return false if index is illegal
 	 */
 	public boolean incReadAt(int index) {
@@ -66,7 +65,6 @@ public class SRArray {
 	/**
 	 * increase write number of SR at 'index'
 	 * 
-	 * @param index
 	 * @return false if index is illegal
 	 */
 	public boolean incWriteAt(int index) {
@@ -82,7 +80,6 @@ public class SRArray {
 	/**
 	 * decrease read number of SR at 'index'
 	 * 
-	 * @param index
 	 * @return false if index is illegal or the count is <= 0
 	 */
 	public boolean decReadAt(int index) {
@@ -100,7 +97,6 @@ public class SRArray {
 	/**
 	 * decrease write number of SR at 'index'
 	 * 
-	 * @param index
 	 * @return false if index is illegal or the count is <= 0
 	 */
 	public boolean decWriteAt(int index) {
@@ -118,7 +114,6 @@ public class SRArray {
 	/**
 	 * get the index of a given share resource name
 	 * 
-	 * @param name
 	 * @return -1 if no such share resource
 	 */
 	public int getIndex(String name) {

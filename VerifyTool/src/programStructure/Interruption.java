@@ -10,20 +10,20 @@ import fileOperator.ITATest;
  */
 public class Interruption {
 
-	private String name; // interruption name
+	private String name;
 
-	private int priority; // priority
+	private int priority;
+	
+	private String IRQ;
 
-	private char type; // type
+	private char type;
 
-	private int period;// period of periodical interruption, interval for random
+	private long period;// period of periodical interruption, interval for random
 						// interruption
 
-	private int offset; // offset of system task
+	private long offset; // offset of system task
 
-	private int lbd; // lowerBound
-
-	private int ubd; // upperBound
+	private long ubd; // upperBound
 
 	private Procedure IP; // corresponding procedure
 
@@ -31,16 +31,25 @@ public class Interruption {
 	/**
 	 * constructor with parameter
 	 */
-	public Interruption(String name, int prio, char type, int period, int offset, int lbd, int ubd,
-			Procedure proc) {
+	public Interruption(String name, String prio, String IRQ, String type, String period, 
+			String offset, String ubd, String proc) {
+
 		this.name = name;
-		this.priority = prio;
-		this.type = type;
-		this.period = period;
-		this.offset = offset;
-		this.lbd = lbd;
-		this.ubd = ubd;
-		this.IP = proc;
+		this.IRQ = IRQ;
+		this.priority = Integer.parseInt(prio);
+		this.period = Long.parseLong(period);
+		this.offset = Long.parseLong(offset);
+		this.ubd = Long.parseLong(ubd);
+
+		this.type = ' ';
+		if (this.priority >= 255)
+			this.type = 'S'; // system task;
+		else if (type.equals("random"))
+			this.type = 'R'; // random interruption
+		else
+			this.type = 'P'; // periodical interruption
+
+		this.IP = new Procedure(proc);
 	}
 
 
@@ -53,18 +62,22 @@ public class Interruption {
 		return priority;
 	}
 
+	
+	public String getIRQ(){
+		return IRQ;
+	}
 
 	public char getType() {
 		return type;
 	}
 
 
-	public int getPeriod() {
+	public long getPeriod() {
 		return period;
 	}
 
 
-	public int getOffset() {
+	public long getOffset() {
 		return offset;
 	}
 
@@ -74,12 +87,7 @@ public class Interruption {
 	}
 
 
-	public int getLBD() {
-		return this.lbd;
-	}
-
-
-	public int getUBD() {
+	public long getUBD() {
 		return this.ubd;
 	}
 

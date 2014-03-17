@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import programStructure.CVMap;
 import programStructure.Interruption;
+import programStructure.IntervalMap;
 import programStructure.Procedure;
 import programStructure.ProgramPoint;
 import programStructure.SRArray;
@@ -20,29 +21,54 @@ import programStructure.Task;
  * 
  */
 public class Model {
+	private static CVMap cvMap = new CVMap(); // control variable map
+	
+	private static SRArray srArray = new SRArray();	//share resource array
+	
+	private static IntervalMap intervalMap = new IntervalMap(); 	//interval map
 
-	private static ArrayList<ITA> ITANet; // net of interruption timed automata
+	private static ArrayList<Interruption> interArray = new ArrayList<Interruption>(); // interruption array
 
-	// private static InterruptVector interVec; //interruption vector
-	// private static CPUStack stack; //CPU stack
-	private static CVMap cvMap; // control variable map
+	private static ArrayList<Task> taskArray = new ArrayList<Task>();	//task array
+	
+	private static ArrayList<ITA> ITANet = new ArrayList<ITA>(); // net of interruption timed automata
 
-	private static ArrayList<Interruption> interArray; // interruption array
-
-	private static ArrayList<Task> taskArray;
-
-	private static SRArray srArray;
+	
+/////////////////////////////////////////////////////////////////////////////	
+	
+	/**
+	 * add a new control variable into model
+	 * 
+	 * @param : data get from input file, all in string form
+	 */
+	public static void addCV(String name, String value) {
+		Model.cvMap.add(name, Integer.parseInt(value));
+	}
 
 
 	/**
-	 * constructor
+	 * add a new share resource into model
 	 */
-	public Model() {
-		Model.interArray = new ArrayList<Interruption>();
-		Model.cvMap = new CVMap();
-		Model.ITANet = new ArrayList<ITA>();
-		Model.taskArray = new ArrayList<Task>();
-		Model.srArray = new SRArray();
+	public static void addSR(String name) {
+		Model.srArray.addSR(name);
+	}
+	
+	
+	/**
+	 * add a new interval into model
+	 * 
+	 * @param : data get from input file, all in string form
+	 */
+	public static void addInterval(String IRQ, String value){
+		Model.intervalMap.add(IRQ, Long.parseLong(value));
+	}
+	
+	
+	/**
+	 * add new ITA
+	 */
+	public static void addITA(ITA ita) {
+		Model.ITANet.add(ita);
 	}
 
 
@@ -51,97 +77,32 @@ public class Model {
 	 * 
 	 * @param : data get from input file, all in string form
 	 */
-	public void addInter(String name, String prio, String type, String period, String offset,
-			String lbd, String ubd, String proc) {
+	public static void addInter(String name, String prio, String IRQ, String type, String period, 
+			String offset, String ubd, String proc) {
 
-		int intPrio = Integer.parseInt(prio);
-
-		char typeForITA = ' ';
-		if (intPrio >= 255)
-			typeForITA = 'S'; // system task;
-		else if (type.equals("random"))
-			typeForITA = 'R'; // random interruption
-		else
-			typeForITA = 'P'; // periodical interruption
-
-		int intPeriod = Integer.parseInt(period);
-
-		int intOffset = Integer.parseInt(offset);
-
-		int lowerBd = Integer.parseInt(lbd);
-
-		int upperBd = Integer.parseInt(ubd);
-
-		Procedure procedure = new Procedure(proc);
-
-		Interruption inter = new Interruption(name, intPrio, typeForITA, intPeriod, intOffset,
-				lowerBd, upperBd, procedure);
+		Interruption inter = new Interruption(name, prio, IRQ, type, period, offset, ubd, proc);
 		Model.interArray.add(inter);
-	}
-
-
-	/**
-	 * add a new control variable into model
-	 * 
-	 * @param : data get from input file, all in string form
-	 */
-	public void addCV(String name, String value) {
-		int valueNum = Integer.parseInt(value);
-
-		Model.cvMap.add(name, valueNum);
-	}
-
-
-	/**
-	 * add a new share resource into model
-	 * 
-	 * @param name
-	 */
-	public void addSR(String name) {
-		Model.srArray.addSR(name);
 	}
 
 
 	/**
 	 * add a new task into model
 	 */
-	public void addTask(String name, String lb, String ub, String finishTime,
-			ArrayList<String> read, ArrayList<String> write) {
-		int lowerBound = Integer.parseInt(lb);
-		int upperBound = Integer.parseInt(ub);
-		int ft = Integer.parseInt(finishTime);
+	public static void addTask(String name, String lb, String ub, String ft,
+			String readSR, String writeSR, String commFlag) {
 
-		// convert the name list of SR to the index list
-		ArrayList<Integer> readIndex = new ArrayList<Integer>();
-		ArrayList<Integer> writeIndex = new ArrayList<Integer>();
-		for (String str : read) {
-			readIndex.add(getSRIndex(str));
-		}
-		for (String str : write) {
-			writeIndex.add(getSRIndex(str));
-		}
-
-		Task task = new Task(name, lowerBound, upperBound, ft, readIndex, writeIndex);
+		Task task = new Task(name, lb, ub, ft, readSR, writeSR, commFlag);
 		Model.taskArray.add(task);
 	}
 
+////////////////////////////////////////////////////////////////////////////////////////	
 	
 	/**
-	 * add new ITA
-	 */
-	public void addITA(ITA ita) {
-		Model.ITANet.add(ita);
-	}
-	
-	
-	/**
-	 * get ITA of array index 'index'
-	 * 
-	 * @param index
-	 *            : the index ITA in array
+	 * get ITA at index 'index'
+	 *
 	 * @return null if index is illegal
 	 */
-	public static ITA getITA(int index) {
+	public static ITA getITAAt(int index) {
 		if (index >= Model.ITANet.size() || index < 0)
 			return null;
 		else {
@@ -151,10 +112,8 @@ public class Model {
 
 
 	/**
-	 * get interruption of array index 'index'
+	 * get interruption at index 'index'
 	 * 
-	 * @param index
-	 *            : the index interruption in array
 	 * @return null if index is illegal
 	 */
 	public static Interruption getInterAt(int index) {
@@ -166,20 +125,9 @@ public class Model {
 	
 	
 	/**
-	 * 根据中断名获取中断号
-	 * @param name
-	 * @return
-	 */
-	public static int getInterIndexByName(String name) {
-		for (int i = 0; i < Model.interArray.size(); i++)
-			if (Model.getInterAt(i).getName().equals(name))
-				return i;
-		return -1;
-	}
-
-
-	/**
-	 * get procedure according to procIndex
+	 * get procedure at index 'index'
+	 * 
+	 * @return null if index is illegal
 	 */
 	public static Procedure getProcAt(int index) {
 		if (index >= Model.interArray.size() || index < 0)
@@ -187,54 +135,13 @@ public class Model {
 		else
 			return Model.interArray.get(index).getIP();
 	}
-
-
-
-	/**
-	 * get task with given name
-	 * 
-	 * @return null if no such task
-	 */
-	public static Task getTask(String name) {
-		for (Task task : Model.taskArray)
-			if (task.getName().equals(name))
-				return task;
-		return null;
-	}
-
-
-	/**
-	 * get the index of given interruption in model
-	 * 
-	 * @param inter
-	 * @return -1 if parameter is null or no such interruption
-	 */
-	public static int getInterIndex(Interruption inter) {
-		if (inter == null)
-			return -1;
-		else
-			return Model.interArray.indexOf(inter);
-	}
-
-
-	/**
-	 * get the index of given name of share resource
-	 * 
-	 * @param name
-	 * @return -1 if no such share resource
-	 */
-	public static int getSRIndex(String name) {
-		return Model.srArray.getIndex(name);
-	}
-
-
+	
+	
 	/**
 	 * get the statement of procedure at certain program point
 	 * 
-	 * @param procIndex
-	 *            : index of procedure
-	 * @param pnt
-	 *            : program point
+	 * @param procIndex : index of procedure
+	 * @param pnt : program point
 	 * @return "" if parameters are illegal
 	 */
 	public static String getStatement(int procIndex, int pnt) {
@@ -249,11 +156,49 @@ public class Model {
 
 		return result;
 	}
+	
+	
+	/**
+	 * get task with given name
+	 * 
+	 * @return null if no such task
+	 */
+	public static Task getTask(String name) {
+		for (Task task : Model.taskArray)
+			if (task.getName().equals(name))
+				return task;
+		return null;
+	}
+	
+	
+	/**
+	 * get index of the interruption with name 'name'
+	 * 
+	 * @return -1 if no such interruption
+	 */
+	public static int getInterIndexByName(String name) {
+		for (int i = 0; i < Model.interArray.size(); i++)
+			if (Model.getInterAt(i).getName().equals(name))
+				return i;
+		return -1;
+	}
 
 
 	/**
-	 * get ShareResource array
+	 * get the index of given name of share resource
+	 * 
+	 * @return -1 if no such share resource
 	 */
+	public static int getSRIndex(String name) {
+		return Model.srArray.getIndex(name);
+	}
+
+
+	public static CVMap getCVMap() {
+		return Model.cvMap;
+	}
+
+
 	public static SRArray getSRArray() {
 		return Model.srArray;
 	}
@@ -270,9 +215,7 @@ public class Model {
 	}
 
 
-	public static CVMap getCVMap() {
-		return Model.cvMap;
-	}
+	
 
 
 	/**

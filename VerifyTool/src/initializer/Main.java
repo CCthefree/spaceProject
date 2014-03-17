@@ -42,12 +42,11 @@ public class Main {
 		String resultFile = (args.length == 0) ? resultFileName : args[1];
 		int K = (args.length == 0) ? bound : Integer.parseInt(args[2]);
 		logFileName = fileLoc + "\\log(K=" + K + ").txt";
-
-		Model model = new Model();
+		
 
 		XMLFileReader xmlReader = new XMLFileReader(inputFile);
 		// 读取文件失败，退出检验
-		if (xmlReader.initModel(model) == false)
+		if (xmlReader.initModel() == false)
 			System.exit(1);
 
 		Model.getSRArray().initialize(); // initialize nRead and nWrite of SR
@@ -57,7 +56,7 @@ public class Main {
 		Logger logger = new Logger(logFileName);
 		logger.clearContent();
 
-		new Verification(K);
+		new VerificationAll(K);
 		logger.output();
 
 		// output checking result

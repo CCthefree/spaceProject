@@ -10,7 +10,7 @@ public class SubExpr {
 
 	private int firstPara; // minuend
 
-	private int secondPara; // subtractor
+	private int secondPara; // Subtracter
 
 
 	/**

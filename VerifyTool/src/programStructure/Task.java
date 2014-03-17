@@ -14,11 +14,13 @@ public class Task {
 
 	private String name; // task name
 
-	private int lowerBound; // static processing lowerBound
+	private long lowerBound; // static processing lowerBound
 
-	private int upperBound; // static processing upperBound
+	private long upperBound; // static processing upperBound
 
-	private int finishTime; // max allowed time of dynamic processing
+	private long finishTime; // max allowed time of dynamic processing
+	
+	private boolean commFlag;	//flag indicates whether this task is communication task
 
 	private ArrayList<Integer> readSR; // list of read share resource indexes
 
@@ -28,15 +30,25 @@ public class Task {
 	/**
 	 * constructor
 	 */
-	public Task(String name, int lb, int ub, int finishTime, ArrayList<Integer> read,
-			ArrayList<Integer> write) {
+	public Task(String name, String lb, String ub, String ft,
+			String readSR, String writeSR, String flag) {
 		this.name = name;
-		this.lowerBound = lb;
-		this.upperBound = ub;
-		this.finishTime = finishTime;
-
-		this.readSR = read;
-		this.writeSR = write;
+		this.lowerBound = Long.parseLong(lb);
+		this.upperBound = Long.parseLong(ub);
+		this.finishTime = Long.parseLong(ft);
+		this.commFlag = flag.equals("yes") ? true : false;
+		
+		// convert the name list of SR to the index list
+		this.readSR = new ArrayList<Integer>();
+		this.writeSR = new ArrayList<Integer>();
+		String[] read = readSR.split(",");
+		String[] write = writeSR.split(",");
+		for (String str : read) {
+			this.readSR.add(Model.getSRIndex(str));
+		}
+		for (String str : write) {
+			this.writeSR.add(Model.getSRIndex(str));
+		}
 	}
 
 
@@ -45,20 +57,23 @@ public class Task {
 	}
 
 
-	public int getLowerBound() {
+	public long getLowerBound() {
 		return this.lowerBound;
 	}
 
 
-	public int getUpperBound() {
+	public long getUpperBound() {
 		return this.upperBound;
 	}
 
 
-	public int getFinishTime() {
+	public long getFinishTime() {
 		return this.finishTime;
 	}
 
+	public boolean getCommFlag(){
+		return this.commFlag;
+	}
 
 	public ArrayList<Integer> getReadSR() {
 		return readSR;

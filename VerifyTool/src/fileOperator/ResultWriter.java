@@ -38,7 +38,7 @@ public class ResultWriter {
 
 	private static String name = ""; // the problem interruption/task/SR name
 
-	private static int upbnd = -1; // upper bound of the interruption/task
+	private static long upbnd = -1; // upper bound of the interruption/task
 
 	private static int[] writeRecord; // the record of number that tasks write
 										// the SR
@@ -215,7 +215,7 @@ public class ResultWriter {
 	 * @param name
 	 * @param upbnd
 	 */
-	public static void setFaultInfo(int type, String name, int upbnd) {
+	public static void setFaultInfo(int type, String name, long upbnd) {
 		ResultWriter.type = type;
 		ResultWriter.name = name;
 		ResultWriter.upbnd = upbnd;

@@ -1,6 +1,5 @@
 package fileOperator;
 
-import initializer.Lexer;
 import initializer.Model;
 import ita.ITA;
 import ita.ITAEdge;
@@ -18,6 +17,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import util.Lexer;
+
 public class XMLFileReader {
 
 	private String fileName;
@@ -34,7 +35,7 @@ public class XMLFileReader {
 	/**
 	 * initialize mode information
 	 */
-	public boolean initModel(Model model) {
+	public boolean initModel() {
 		SAXReader reader = new SAXReader();
 
 		try {
@@ -43,25 +44,28 @@ public class XMLFileReader {
 			Element root = doc.getRootElement();
 
 			// read interruption data
-			initInterruption(model, root);
+			initInterruption(root);
 
 			// read control variable data
-			initCV(model, root);
+			initCV(root);
 
 			// read share resource
-			initSR(model, root);
+			initSR(root);
 
 			// read task
-			initTask(model, root);
+			initTask(root);
+			
+			// read interval
+			initInterval(root);
 			
 			//read ITA
-			initITANet(model, root);
+			initITANet(root);
 
 			return true;
 
 		}
 		catch (DocumentException e) {
-			JOptionPane.showMessageDialog(null, "找不到文件" + fileName);
+			JOptionPane.showMessageDialog(null, "文件" + fileName + "编码格式错误！");
 			e.printStackTrace();
 			return false;
 		}
@@ -75,13 +79,8 @@ public class XMLFileReader {
 
 	/**
 	 * initialize interruption information
-	 * 
-	 * @param model
-	 *            : whole model
-	 * @param root
-	 *            : root of xml doc
 	 */
-	public void initInterruption(Model model, Element root) {
+	private void initInterruption(Element root) {
 		List inters = root.element("interruption").elements("value");
 		if (inters == null)
 			return;
@@ -90,28 +89,25 @@ public class XMLFileReader {
 			Element inter = (Element) it.next();
 			String name = inter.elementText("name");
 			String prio = inter.elementText("priority");
+			String IRQ = inter.elementText("IRQ");
 			String type = inter.elementText("type");
 			String repeat = inter.elementText("repeat");
-			String interval = inter.elementText("interval");
 			String offset = inter.elementText("offset");
-			String lbd = inter.elementText("lowerBound");
+			String interval = inter.elementText("interval");
 			String ubd = inter.elementText("upperBound");
 			String proc = inter.elementText("procedure");
 
 			String period = type.equals("random") ? interval : repeat;
 
-			model.addInter(name, prio, type, period, offset, lbd, ubd, proc);
+			Model.addInter(name, prio, IRQ, type, period, offset, ubd, proc);
 		}
 	}
 
 
 	/**
 	 * initialize control variable information
-	 * 
-	 * @param model
-	 * @param root
 	 */
-	public void initCV(Model model, Element root) {
+	private void initCV(Element root) {
 		List cvs = root.element("controlVariable").elements("value");
 		if (cvs == null)
 			return;
@@ -121,18 +117,15 @@ public class XMLFileReader {
 			String name = cv.elementText("name");
 			String value = cv.elementText("initValue");
 
-			model.addCV(name, value);
+			Model.addCV(name, value);
 		}
 	}
 
 
 	/**
 	 * initialize share resource information
-	 * 
-	 * @param model
-	 * @param root
 	 */
-	public void initSR(Model model, Element root) {
+	private void initSR(Element root) {
 		List srs = root.element("shareResource").elements("value");
 		if (srs == null)
 			return;
@@ -141,15 +134,15 @@ public class XMLFileReader {
 			Element sr = (Element) it.next();
 			String name = sr.elementText("name");
 
-			model.addSR(name);
+			Model.addSR(name);
 		}
 	}
 
 
 	/**
-	 * initialize task
+	 * initialize task information
 	 */
-	public void initTask(Model model, Element root) {
+	private void initTask(Element root) {
 		List tasks = root.element("task").elements("value");
 		if (tasks == null)
 			return;
@@ -160,19 +153,31 @@ public class XMLFileReader {
 			String lb = task.elementText("lowerBound");
 			String ub = task.elementText("upperBound");
 			String finishTime = task.elementText("finishTime");
-			
-			ArrayList<String> read = getSRList(task.element("readSource"));
-			ArrayList<String> write = getSRList(task.element("writeSource"));
-			model.addTask(name, lb, ub, finishTime, read, write);
+			String readSR = task.elementText("readSource");
+			String writeSR = task.elementText("writeSource");
+			String commFlag = task.elementText("commFlag");
+			Model.addTask(name, lb, ub, finishTime, readSR, writeSR, commFlag);
 		}
 	}
 	
 	
+	private void initInterval(Element root){
+		List intervals = root.element("interval").elements("value");
+		if(intervals == null)
+			return ;
+		
+		for(Iterator it = intervals.iterator(); it.hasNext();){
+			Element interval = (Element) it.next();
+			String IRQ = interval.elementText("IRQ");
+			String value = interval.elementText("leastInterval");
+			Model.addInterval(IRQ, value);
+		}
+	}
 
 	/**
 	 * 根据输入文件生成ITAs
 	 */
-	public void initITANet(Model model, Element root) {
+	public void initITANet(Element root) {
 		List itas = root.element("ITANet").elements("ITA");
 		if (itas == null)
 			return;
@@ -181,14 +186,14 @@ public class XMLFileReader {
 			Element ita = (Element) it.next();
 			List states = ita.elements("state");
 			List edges = ita.elements("transition");
-			constructITA(model, states, edges);
+			constructITA(states, edges);
 		}
 	}
 	
 	/**
 	 *根据状态集和边集构造ITA
 	 */
-	public void constructITA(Model model, List states, List edges) {
+	public void constructITA( List states, List edges) {
 		ITA ita = new ITA();
 		
 		for (Iterator it = states.iterator(); it.hasNext();) {   //设置location
@@ -237,22 +242,7 @@ public class XMLFileReader {
 		}
 		
 		
-		
-		model.addITA(ita);
-	}
-	
-	
-	public ArrayList<String> getSRList(Element root){
-		ArrayList<String> result = new ArrayList<String>();
-		List names = root.elements("name");
-		if(names == null)
-			return result;
-		
-		for(Iterator it = names.iterator(); it.hasNext();){
-			Element name = (Element) it.next();
-			result.add(name.getText());
-		}
-		return result;
+		Model.addITA(ita);
 	}
 	
 	

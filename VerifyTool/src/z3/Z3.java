@@ -119,7 +119,7 @@ public class Z3 {
 	 */
 	private BoolExpr transCons(Constrain cons) throws Z3Exception {
 		String op = cons.getOp();
-		int value = cons.getValue();
+		long value = cons.getValue();
 		ArithExpr wholeExpr;
 
 		if (cons.getFirstArray() == null) { // addPart and subPart is integer

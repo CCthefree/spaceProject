@@ -11,6 +11,7 @@ import programStructure.CVMap;
 import programStructure.Interruption;
 import programStructure.Procedure;
 import programStructure.ProgramPoint;
+import util.define;
 
 /**
  * class of event of the running model
@@ -22,18 +23,13 @@ public class Event {
 
 	private int type; // indicate the type of event;
 
-	// 0 for ITA transition,
-	// 1 for push in new procedure,
-	// 2 for procedure goes on,
-	// 3 for pop out procedure
-
-	private int ITAIndex; // index of transition ITA, for event type 0;
+	private int ITAIndex; // index of transition ITA, for transition event
 	
-	private boolean reset; //indicate whether the ITA transition reset clock, for event type 0
+	private boolean reset; //indicate whether the ITA transition reset clock, for transition event
 
-	private int procIndex; // index of push in procedure, for event type 0,1,2,3;
+	private int procIndex; // index of interruption, for all events
 
-	private int pnt; // result program point of procedure, for event type 2;
+	private int pnt; // result program point of procedure, for move event
 
 
 	/**
@@ -52,8 +48,7 @@ public class Event {
 	/**
 	 * calculate all the potential events at global state 'gs'
 	 * 
-	 * @param gs
-	 *            : current global state
+	 * @param gs  : current global state
 	 * @return: list of all the potential events
 	 */
 	public static ArrayList<Event> potentialEvents(GlobalState gs) {
@@ -69,7 +64,7 @@ public class Event {
 		if (prioOfVec < prioOfStack) { // there has higher priority interruption
 										// in interVec, return only this event
 			/** 事件1: 高级中断进入CPU栈，此时候选事件唯一 **/
-			newEvent = new Event(1, -1, gs.getInterVec().getHighestInter(), -1);
+			newEvent = new Event(define.push, -1, gs.getInterVec().getHighestInter(), -1);
 			eventList.add(newEvent);
 
 			return eventList;
@@ -92,25 +87,24 @@ public class Event {
 
 			if (newPnt == topIp.getEndPnt()) {	//新的程序点为procedure的结束点
 				/*** 事件3：procedure执行并出栈 **/
-				newEvent = new Event(3, -1, gs.getStack().getTopProc(), -1);
+				newEvent = new Event(define.pop, -1, gs.getStack().getTopProc(), -1);
 			}
 			else
 				/*** 事件2：procedure继续执行 **/
-				newEvent = new Event(2, -1, gs.getStack().getTopProc(), newPnt);
+				newEvent = new Event(define.move, -1, gs.getStack().getTopProc(), newPnt);
 			
 			eventList.add(newEvent);
-
 		}
 
 		// successor event of ITA
 		{
 			for (int i = 0; i < Model.getITACount(); i++) {
 
-				ITALocation loc = Model.getITA(i).getLocation(gs.getLocVec()[i]);
+				ITALocation loc = Model.getITAAt(i).getLocation(gs.getLocVec()[i]);
 				if (loc.getEdge() != null) {	//自动机当前位置有出边
 					int interIndex = loc.getEdge().getInterIndex();
 					/** 事件0：自动机事件 **/
-					newEvent = new Event(0, i, interIndex, -1);
+					newEvent = new Event(define.trans, i, interIndex, -1);
 					//如果转换边重制时钟，在event中标记
 					if(loc.getEdge().getReset() == true)
 						newEvent.setReset(true);
@@ -167,9 +161,6 @@ public class Event {
 
 	/**
 	 * sort event according to their type, decrease
-	 * 
-	 * @param event
-	 *            list
 	 */
 	public static void sort(ArrayList<Event> events) {
 		int size = events.size();
@@ -191,6 +182,7 @@ public class Event {
 	public void setReset(boolean r){
 		this.reset = r;
 	}
+	
 	
 	public int getType() {
 		return type;

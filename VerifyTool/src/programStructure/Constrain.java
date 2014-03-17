@@ -25,13 +25,13 @@ public class Constrain {
 
 	private String op; // == or <= or >= or < or >
 
-	private int value;	//constrain value
+	private long value;	//constrain value
 
 
 	/**
 	 * constructor of first form of constrain
 	 */
-	public Constrain(int firstVar, int secondVar, String op, int value) {
+	public Constrain(int firstVar, int secondVar, String op, long value) {
 		this.firstVar = firstVar;
 		this.secondVar = secondVar;
 		this.op = op;
@@ -42,7 +42,7 @@ public class Constrain {
 	/**
 	 * constructor of second form of constrain
 	 */
-	public Constrain(int[] firstArray, int[] secondArray, String op, int value) {
+	public Constrain(int[] firstArray, int[] secondArray, String op, long value) {
 		this.firstArray = firstArray;
 		this.secondArray = secondArray;
 		this.op = op;
@@ -56,7 +56,7 @@ public class Constrain {
 	 * @param exprs
 	 *            : list of subExpr defined in SubExpr class
 	 */
-	public Constrain(ArrayList<SubExpr> exprs, String op, int value) {
+	public Constrain(ArrayList<SubExpr> exprs, String op, long value) {
 		this.firstArray = new int[exprs.size()];
 		this.secondArray = new int[exprs.size()];
 
@@ -95,7 +95,7 @@ public class Constrain {
 	}
 
 
-	public int getValue() {
+	public long getValue() {
 		return this.value;
 	}
 

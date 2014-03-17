@@ -76,15 +76,6 @@ public class InterruptVector {
 
 
 	/**
-	 * get the size of interruption vector
-	 * 
-	 */
-	public int getSize() {
-		return this.size;
-	}
-
-
-	/**
 	 * get the index of highest priority interruption in interVec
 	 * 
 	 * @return -1 if no interruption in interVec
@@ -99,5 +90,14 @@ public class InterruptVector {
 				index = i;
 		}
 		return index;
+	}
+	
+
+	/**
+	 * get the size of interruption vector
+	 * 
+	 */
+	public int getSize() {
+		return this.size;
 	}
 }

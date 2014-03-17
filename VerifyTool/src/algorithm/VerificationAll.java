@@ -12,11 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import programStructure.Constrain;
+import programStructure.Interruption;
 import programStructure.Procedure;
 import programStructure.ProgramPoint;
 import programStructure.SRArray;
 import programStructure.SubExpr;
 import programStructure.Task;
+import util.define;
 import z3.Z3;
 
 import com.microsoft.z3.Z3Exception;
@@ -100,8 +102,8 @@ public class VerificationAll {
 				/** 判断是否出现中断丢失**/
 				if (lostIndex != -1) {	//中断丢失处理
 					//write log and error info
-					writeLog(1, Model.getInterAt(lostIndex).getName());
-					setResultInfo(1, lostIndex);
+					writeLog(define.interLost, Model.getInterAt(lostIndex).getName());
+					setResultInfo(define.interLost, lostIndex);
 
 					// 后继状态计算为false说明中断丢失，中断向量表和自动机位置向量均未置位，不用恢复全局状态
 					this.eventPath.remove(this.eventPath.size() - 1);
@@ -113,7 +115,7 @@ public class VerificationAll {
 				SRRestoreInfo srRInfo = operateSR(rInfo.prePnt); 
 				int conflictIndex = conflictCheck();
 				if (conflictIndex != -1) {	//资源竞争处理
-					setResultInfo(4, conflictIndex);
+					setResultInfo(define.SRconflict, conflictIndex);
 					restoreAll(rInfo, srRInfo);
 					
 					z3.pop();
@@ -151,6 +153,19 @@ public class VerificationAll {
 	
 	
 	/**
+	 * restore all the info, include GS, SR, and eventPath
+	 */
+	public void restoreAll(RestoreInfo rInfo, SRRestoreInfo srRInfo){
+		//remove the last event from event path
+		this.eventPath.remove(this.eventPath.size() - 1);
+		//restore share resource info
+		restoreSR(srRInfo);
+		//restore global state info
+		restore(rInfo);
+	}
+	
+	
+	/**
 	 * push in constrain of current global state and event
 	 * @param e
 	 */
@@ -178,12 +193,12 @@ public class VerificationAll {
 		int result = -1;
 		
 		Event e = this.eventPath.get(this.eventPath.size() - 1);
-		if(e.getType() == 0 || e.getType() == 3)	//自动机事件或出栈事件，不会发生资源竞争
+		if(e.getType() == define.trans || e.getType() == define.pop)	//自动机事件不会发生资源竞争
 			return result;
 		else{
-			int pnt = (e.getType() == 1) ? 0 : e.getPnt();
+			int pnt = (e.getType() == define.push) ? 0 : e.getPnt();
 			ProgramPoint pp = Model.getProcAt(e.getProcIndex()).getPP(pnt);
-			if(pp.getType() == 'I' || pp.getType() == 'A')	//执行IF语句或赋值语句，不会发生资源竞争
+			if(pp.getType() == define.IF || pp.getType() == define.assign)	//执行IF语句或赋值语句，不会发生资源竞争
 				return result;
 		}
 		
@@ -195,12 +210,12 @@ public class VerificationAll {
 		for (int i = 0; i < length; i++) {
 			if (nWrite[i] > 1) {
 				result = i;
-				writeLog(4, srArray.getNameAt(i) + " write-write");
+				writeLog(define.SRconflict, srArray.getNameAt(i) + "write-write");
 				
 			}
 			else if (nWrite[i] > 0 && nRead[i] > 0) {
 				result = i;
-				writeLog(4, srArray.getNameAt(i) + " read-write");
+				writeLog(define.SRconflict, srArray.getNameAt(i) + "read-write");
 			}
 		}
 		
@@ -216,11 +231,11 @@ public class VerificationAll {
 		boolean result = false;
 		
 		Event e = this.eventPath.get(this.eventPath.size() - 1);
-		if(e.getType() == 1)	//进栈事件，时钟不前进，不会发生超时
+		if(e.getType() == define.push)	//进栈事件，时钟不前进，不会发生超时
 			return result;
-		else if(e.getType() != 0 ){
+		else if(e.getType() != define.trans ){
 			ProgramPoint pp = Model.getProcAt(e.getProcIndex()).getPP(prePnt);
-			if(pp.getType() == 'I' || pp.getType() == 'A')	//执行IF语句或赋值语句，时钟不前进，不会发生超时
+			if(pp.getType() == define.IF || pp.getType() == define.assign)	//执行IF语句或赋值语句，时钟不前进，不会发生超时
 				return result;
 		}
 		
@@ -234,9 +249,9 @@ public class VerificationAll {
 			if (z3.check() == true) { // task over time
 				int eventIndex = con.getSecondVar();
 				
-				writeLog(3, String.valueOf(con.getSecondVar()));	//write log
+				writeLog(define.taskOT, String.valueOf(con.getSecondVar()));	//write log
 				// set error info
-				setResultInfo(3, eventIndex);
+				setResultInfo(define.taskOT, eventIndex);
 				result = true;
 
 				z3.pop();
@@ -252,17 +267,16 @@ public class VerificationAll {
 	
 	/**
 	 * check whether there exist procedure overtime at current global state
-	 * @return
 	 */
 	public boolean procOTCheck(int prePnt) throws Z3Exception{
 		boolean result = false;
 		
 		Event e = this.eventPath.get(this.eventPath.size() - 1);
-		if(e.getType() == 1)	//进栈事件，时钟不前进，不会发生超时
+		if(e.getType() == define.push)	//进栈事件，时钟不前进，不会发生超时
 			return result;
-		else if(e.getType() != 0 ){
+		else if(e.getType() != define.trans ){
 			ProgramPoint pp = Model.getProcAt(e.getProcIndex()).getPP(prePnt);
-			if(pp.getType() == 'I' || pp.getType() == 'A')	//执行IF语句或赋值语句，时钟不前进，不会发生超时
+			if(pp.getType() == define.IF || pp.getType() == define.assign)	//执行IF语句或赋值语句，时钟不前进，不会发生超时
 				return result;
 		}
 		
@@ -277,9 +291,9 @@ public class VerificationAll {
 			if (z3.check() == true) { // over time error handling
 				int procIndex = this.eventPath.get(con.getSecondVar()).getProcIndex();
 		
-				writeLog(2, Model.getInterAt(procIndex).getName());	 //write log
+				writeLog(define.procOT, Model.getInterAt(procIndex).getName());	 //write log
 				//set error info
-				setResultInfo(2, procIndex);
+				setResultInfo(define.procOT, procIndex);
 				result = true;
 
 				z3.pop();
@@ -291,23 +305,10 @@ public class VerificationAll {
 		
 		return result;
 	}
-	
-	
-	/**
-	 * restore all the info, include GS, SR, and eventPath
-	 */
-	public void restoreAll(RestoreInfo rInfo, SRRestoreInfo srRInfo){
-		//remove the last event from event path
-		this.eventPath.remove(this.eventPath.size() - 1);
-		//restore share resource info
-		restoreSR(srRInfo);
-		//restore global state info
-		restore(rInfo);
-	}
 
-	
-/*//////////////////////////////////////////event constrains/////////////////////////////////////////////////*/
 
+//////////////////////////////////////////////////////event constrains///////////////////////////////////////////////
+	
 	/**
 	 * 生成当前event所对应的constraint, 当前event还未加入eventPath
 	 */
@@ -318,10 +319,10 @@ public class VerificationAll {
 												// 第size个
 
 		/** ITA transition event **/
-		if (e.getType() == 0) {
+		if (e.getType() == define.trans) {
 			int ITAIndex = e.getITAIndex();
 			int curLoc = this.globalstate.getLocVec()[ITAIndex];
-			ITA ita = Model.getITA(ITAIndex);
+			ITA ita = Model.getITAAt(ITAIndex);
 			ITAEdge edge = ita.getLocation(curLoc).getEdge();
 			String op = edge.getOp();
 
@@ -342,43 +343,43 @@ public class VerificationAll {
 		}
 
 		/** push in new procedure event **/
-		else if (e.getType() == 1) {
+		else if (e.getType() == define.push) {
 			// type 1 event cann't be the first event in path
 			cons.add(new Constrain(curPoint, curPoint - 1, "==", 0));
 		}
 
-		/** procedure goes on event, include event type 2 and type 3 **/
+		/** move event or pop event **/
 		else {
 
 			int procIndex = e.getProcIndex();
-			Procedure proc = Model.getProcAt(procIndex);
-			ProgramPoint pp = proc.getPP(this.globalstate.getStack().getTopPnt());
+			Interruption inter = Model.getInterAt(procIndex);
+			ProgramPoint pp = inter.getIP().getPP(this.globalstate.getStack().getTopPnt());
 			int entryPoint = getEventIndex(procIndex); // get the most recently
 														// event on this
 														// procedure
 
 			// current program point is assign statement or if statement
-			if (pp.getType() == 'A' || pp.getType() == 'I') {
+			if (pp.getType() == define.assign || pp.getType() == define.IF) {
 				cons.add(new Constrain(curPoint, entryPoint, "==", 0));
 			}
 			// task call statement
-			else if (pp.getType() == 'C') {
+			else if (pp.getType() == define.call) {
 
 				Task task = Model.getTask(pp.getTaskName());
-				int lowerBound = task.getLowerBound();
-				int upperBound = task.getUpperBound();
+				long lowerBound = task.getLowerBound();
+				long upperBound = task.getUpperBound();
 
 				ArrayList<SubExpr> subExprs = new ArrayList<SubExpr>();
 				int higherProcNum = 0;// 表示打断当前proc的proc数目
 				subExprs.add(new SubExpr(curPoint, entryPoint));
 				for (int i = entryPoint + 1; i < curPoint; i++) {
 					Event event = this.eventPath.get(i);
-					if (event.getType() == 1) {// 更高级中断开始
+					if (event.getType() == define.push) {// 更高级中断开始
 						higherProcNum++;
 						if (higherProcNum == 1)
 							subExprs.get(subExprs.size() - 1).setFirstPara(i);
 					}
-					else if (event.getType() == 3) {// 更高级中断结束
+					else if (event.getType() == define.pop) {// 更高级中断结束
 						higherProcNum--;
 						if (higherProcNum == 0)
 							subExprs.add(new SubExpr(curPoint, i));
@@ -417,8 +418,6 @@ public class VerificationAll {
 
 	/**
 	 * generate constrains to the new event by current global state
-	 * 
-	 * @return
 	 */
 	public ArrayList<Constrain> genGSCons() {
 		ArrayList<Constrain> gsCons = new ArrayList<Constrain>();
@@ -439,8 +438,6 @@ public class VerificationAll {
 
 	/**
 	 * generate constrains to the new event by procedures in CPU stack
-	 * 
-	 * @return
 	 */
 	public ArrayList<Constrain> genStackCons() {
 		ArrayList<Constrain> cons = new ArrayList<Constrain>();
@@ -459,7 +456,7 @@ public class VerificationAll {
 			int procIndex = event.getProcIndex();
 
 			/** 新procedure加入CPU栈 **/
-			if (event.getType() == 1) {
+			if (event.getType() == define.push) {
 
 				if (!processList.isEmpty()) { // 说明 当前procedure打断了低级procedure
 					int preTop = processList.get(processList.size() - 1);
@@ -479,7 +476,7 @@ public class VerificationAll {
 			}
 
 			/** procedure程序点后移 **/
-			else if (event.getType() == 2) {
+			else if (event.getType() == define.move) {
 				// 更新该procedure的占用CPU区间
 				SubExpr sub = new SubExpr(cur, i);
 				processMap.get(procIndex).clear();
@@ -491,7 +488,7 @@ public class VerificationAll {
 			}
 
 			/** procedure出栈 **/
-			else if (event.getType() == 3) {
+			else if (event.getType() == define.pop) {
 				// 从processList和processMap, processPoint中移除当前procedure
 				processList.remove(processList.size() - 1);
 				processMap.remove(procIndex);
@@ -513,12 +510,12 @@ public class VerificationAll {
 				// 获取procedure当前程序点
 				int pnt = processPoint.get(key);
 				ProgramPoint pp = Model.getInterAt(key).getIP().getPP(pnt);
-				int statTime = 0;
+				long statTime = 0;
 
 				if (pp == null) // 说明当前程序点为procedure结束点
 					statTime = 0;
 				// 如果是赋值语句或IF语句，允许执行时间为0
-				else if (pp.getType() == 'A' || pp.getType() == 'I')
+				else if (pp.getType() == define.assign || pp.getType() == define.IF)
 					statTime = 0;
 				else
 					// 如果是子过程调用语句，允许执行时间为该子过程时间上界
@@ -546,19 +543,19 @@ public class VerificationAll {
 
 		int[] locVec = this.globalstate.getLocVec();
 		for (int itaIndex = 0; itaIndex < locVec.length; itaIndex++) {// i表示ITAIndex
-			ITA ita = Model.getITA(itaIndex);
+			ITA ita = Model.getITAAt(itaIndex);
 			String op = ita.getLocation(locVec[itaIndex]).getOp();
 			if (!op.equals("")) {// location上存在时间的约束
 				int value = ita.getLocation(locVec[itaIndex]).getValue();
 
 				if (ita.getInitLoc() == locVec[itaIndex]) // 如果自动机i在初始位置，设置约束为到时间点0的表达式
 					cons.add(new Constrain(curPoint, -1, op, value));
-				else {// 否则，找到事件路径中最近的该自动机时钟重置的转换
+				else {// 否则，找到事件路径中最近的该自动机上的转换
 					int j = curPoint - 1;
 					for (; j >= 0; j--){
 						Event e = this.eventPath.get(j);
 						if (e.getType() == 0 && e.getITAIndex() == itaIndex
-								&& e.getReset() == true) {
+								&& e.getReset() == true) {	
 							break;
 						}
 					}
@@ -569,15 +566,14 @@ public class VerificationAll {
 		return cons;
 	}
 
-
-/*//////////////////////////////////////////////specification////////////////////////////////////////////////*/
+	
+///////////////////////////////////////////////////specification///////////////////////////////////////////////////
 
 	/**
 	 * generate overtime constraints of task
 	 */
 	public ArrayList<Constrain> genTaskOTCons() {
 		ArrayList<Constrain> cons = new ArrayList<Constrain>();
-		
 		int cur = this.eventPath.size() - 1;
 		if (cur <= 0)
 			return cons;
@@ -586,13 +582,13 @@ public class VerificationAll {
 			for (int i = 0; i < stackSize; i++) {
 				int procIndex = this.globalstate.getStack().getProcIndexAt(i);
 				int point = this.globalstate.getStack().getPntAt(i);
-				ProgramPoint pp = Model.getProcAt(procIndex).getPP(point);
-				if (pp.getType() == 'C') { // 该子过程是call语句
+				ProgramPoint pp = Model.getInterAt(procIndex).getIP().getPP(point);
+				if (pp.getType() == define.call) { // 该子过程是call语句
 					Task task = Model.getTask(pp.getTaskName());
-					int startPoint = getEventIndexByPP(procIndex, point);
+					int startPoint = getEventIndexFromPP(procIndex, point);
 					if (startPoint < cur && startPoint != -1)
 						if (task.getFinishTime() != -1)
-							/** 目前输入模型中允许finishiTime为-1，以后再约束 **/
+							/** TODO 目前输入模型中允许finishiTime为-1，以后再约束 **/
 							cons.add(new Constrain(cur, startPoint, "<=", task.getFinishTime()));
 				}
 			}
@@ -606,12 +602,12 @@ public class VerificationAll {
 	/**
 	 * 根据procIndex和pp获取最近的事件序号
 	 */
-	public int getEventIndexByPP(int procIndex, int point) {
+	public int getEventIndexFromPP(int procIndex, int point) {
 		for (int i = this.eventPath.size() - 1; i >= 0; i--) {
 			Event e = this.eventPath.get(i);
-			if (point == 0 && e.getType() == 1 && e.getProcIndex() == procIndex)
+			if (point == 0 && e.getType() == define.push && e.getProcIndex() == procIndex)
 				return i;
-			else if (e.getType() == 2 && e.getProcIndex() == procIndex && e.getPnt() == point)
+			else if (e.getType() == define.move && e.getProcIndex() == procIndex && e.getPnt() == point)
 				return i;
 		}
 
@@ -620,9 +616,7 @@ public class VerificationAll {
 
 
 	/**
-	 * generate overtime constrains of system
-	 * 
-	 * @return
+	 * generate overtime constrains of procedure
 	 */
 	public ArrayList<Constrain> genProcOTCons() {
 		ArrayList<Constrain> cons = new ArrayList<Constrain>();
@@ -634,12 +628,12 @@ public class VerificationAll {
 		else {
 			for (int i = 0; i < cur; i++) {
 				Event e = this.eventPath.get(i);
-				if (e.getType() == 1) { // find procedure pushed in event
+				if (e.getType() == define.push) { // find procedure pushed in event
 					// add to constrain list
 					cons.add(new Constrain(cur, i, "<=", Model.getInterAt(e.getProcIndex())
 							.getUBD()));
 				}
-				else if (e.getType() == 3) { // procedure pop out event
+				else if (e.getType() == define.pop) { // procedure pop out event
 					// remove the last constrain from 'cons'
 					cons.remove(cons.size() - 1);
 				}
@@ -650,7 +644,7 @@ public class VerificationAll {
 	}
 
 	
-/*////////////////////////////////////////////traverse info//////////////////////////////////////////////////*/
+//////////////////////////////////////////////////traverse info/////////////////////////////////////////////////////
 
 	/**
 	 * set restore information according to present handling event
@@ -663,29 +657,29 @@ public class VerificationAll {
 		RestoreInfo rInfo = new RestoreInfo(type);
 
 		/** ITA transition event **/
-		if (type == 0) {
+		if (type == define.trans) {
 			// record present ITA index and location
 			rInfo.ITAIndex = e.getITAIndex();
 			rInfo.preLoc = this.globalstate.getLocVec()[rInfo.ITAIndex];
 		}
 
 		/** push in new procedure event **/
-		else if (type == 1) {
+		else if (type == define.push) {
 			rInfo.procIndex = e.getProcIndex();
 		}
 
-		/** procedure goes on event, include type 2 or 3 **/
+		/** move event or pop event **/
 		else {
 			rInfo.prePnt = this.globalstate.getStack().getTopPnt();
 			Procedure proc = Model.getInterAt(this.globalstate.getStack().getTopProc()).getIP();
 			ProgramPoint pp = proc.getPP(rInfo.prePnt);
-			if (pp.getType() == 'A') { // if present statement if assign statement
+			if (pp.getType() == define.assign) { // if present statement if assign statement
 				// record the control variable name and value
 				rInfo.cvName = pp.getCvName();
 				rInfo.preValue = this.globalstate.getCvMap().getValue(rInfo.cvName);
 			}
 
-			if (type == 3) // procedure pop out event, record previous procedure index
+			if (type == define.pop) // procedure pop out event, record previous procedure index
 				rInfo.preProc = this.globalstate.getStack().getTopProc();
 		}
 
@@ -701,17 +695,17 @@ public class VerificationAll {
 	public void restore(RestoreInfo rInfo) {
 		int type = rInfo.type;
 		/** restore ITA location **/
-		if (type == 0) {
+		if (type == define.trans) {
 
 			this.globalstate.getLocVec()[rInfo.ITAIndex] = rInfo.preLoc;
 			// if the edge has interruption, reset 'interVec'
-			ITAEdge edge = Model.getITA(rInfo.ITAIndex).getLocation(rInfo.preLoc).getEdge();
+			ITAEdge edge = Model.getITAAt(rInfo.ITAIndex).getLocation(rInfo.preLoc).getEdge();
 			if (edge.getInterIndex() != -1)
 				this.globalstate.getInterVec().setFalse(edge.getInterIndex());
 		}
 
 		/** restore stack and vector **/
-		else if (type == 1) {
+		else if (type == define.push) {
 			// pop out new procedure and reset interruption vector
 			this.globalstate.getStack().pop();
 			this.globalstate.getInterVec().setTrue(rInfo.procIndex);
@@ -719,7 +713,7 @@ public class VerificationAll {
 
 		/** restore CPU stack and control variable **/
 		else {
-			if (type == 3) // event 3 need push back member
+			if (type == define.pop) // event 3 need push back member
 				this.globalstate.getStack().push(rInfo.preProc, rInfo.prePnt);
 			else
 				this.globalstate.getStack().setPnt(rInfo.prePnt);
@@ -739,20 +733,20 @@ public class VerificationAll {
 
 		int cur = this.eventPath.size() - 1;
 		Event e = this.eventPath.get(cur);
-		if (e.getType() == 2 || e.getType() == 3) { // nRead和nWrite减一操作
+		if (e.getType() == define.move || e.getType() == define.pop) { // nRead和nWrite减一操作
 			Procedure proc = Model.getProcAt(e.getProcIndex());
 
 			ProgramPoint pp = proc.getPP(prePnt);// 上一个程序点
-			if (pp.getType() == 'C') {
+			if (pp.getType() == define.call) {
 				String name = pp.getTaskName();
 				Task task = Model.getTask(name);
 				ArrayList<Integer> readSR = task.getReadSR();
 				ArrayList<Integer> writeSR = task.getWriteSR();
 				for (int i : readSR) {
-					this.globalstate.getSRArray().decReadAt(i);
+					Model.getSRArray().decReadAt(i);
 				}
 				for (int i : writeSR) {
-					this.globalstate.getSRArray().decWriteAt(i);
+					Model.getSRArray().decWriteAt(i);
 				}
 
 				// 设置共享资源读写数组恢复信息
@@ -762,14 +756,14 @@ public class VerificationAll {
 
 		}
 
-		if (e.getType() == 1 || e.getType() == 2) { // nRead和nWrite加一操作
+		if (e.getType() == define.push || e.getType() == define.move) { // nRead和nWrite加一操作
 			Procedure proc = Model.getProcAt(e.getProcIndex());
 			ProgramPoint pp;
-			if (e.getType() == 1)
+			if (e.getType() == define.push)
 				pp = proc.getPP(0);// 获取初始程序点
 			else
 				pp = proc.getPP(e.getPnt());
-			if (pp.getType() == 'C') {
+			if (pp.getType() == define.call) {
 				String name = pp.getTaskName();
 				Task task = Model.getTask(name);
 				ArrayList<Integer> readSR = task.getReadSR();
@@ -818,17 +812,11 @@ public class VerificationAll {
 			}
 	}
 
-	
-/*/////////////////////////////////////////////result info/////////////////////////////////////////////*/
+////////////////////////////////////////////////////result info////////////////////////////////////////////////
 
 	/**
 	 * set information of checking result for writing into file
 	 * 
-	 * @param type
-	 *  type=1: 中断丢失
-	 *  type=2： 中断处理超时
-	 *  type=3： 子过程超时
-	 *  type=4： 资源冲突
 	 */
 	public void setResultInfo(int type, int i) {
 		// set counter path
@@ -840,21 +828,21 @@ public class VerificationAll {
 		ResultWriter.setCounterExample(example);
 
 		// set fault interruption info
-		if (type == 1 || type == 2) { // 中断丢失或程序超时
+		if (type == define.interLost || type == define.procOT) { // 中断丢失或程序超时
 			int interIndex = i;
 			String name = Model.getInterAt(interIndex).getName();
-			int upbnd = Model.getInterAt(interIndex).getUBD();
+			long upbnd = Model.getInterAt(interIndex).getUBD();
 			ResultWriter.setFaultInfo(type, name, upbnd);
 		}
-		else if (type == 3){ // 子过程超时
+		else if (type == define.taskOT){ // 子过程超时
 			Event e = this.eventPath.get(i);
 			int procIndex = e.getProcIndex();
-			int pnt = (e.getType() == 2) ? e.getPnt() : 0;
+			int pnt = (e.getType() == define.move) ? e.getPnt() : 0;
 			String taskName = Model.getInterAt(procIndex).getIP().getPP(pnt).getTaskName();
-			int upbnd = Model.getTask(taskName).getFinishTime();
+			long upbnd = Model.getTask(taskName).getFinishTime();
 			ResultWriter.setFaultInfo(type, taskName, upbnd);
 		}
-		else { //资源冲突
+		else if(type == define.SRconflict){ //资源冲突
 			String resName = Model.getSRArray().getNameAt(i);
 			int[] nWriteIndices = getnRead_WriteIndices('w', resName);
 			int[] nReadIndices = getnRead_WriteIndices('r', resName);
@@ -878,9 +866,9 @@ public class VerificationAll {
 		for (int i = 0; i < length; i++) {
 			
 			Event e = this.eventPath.get(i);
-			if (e.getType() == 2 || e.getType() == 3) { //减一
+			if (e.getType() == define.move || e.getType() == define.pop) { //减一
 				ProgramPoint pp = getLastPPFrom(i);// 上一个程序点
-				if (pp.getType() == 'C') {
+				if (pp.getType() == define.call) {
 					String name = pp.getTaskName();
 					Task task = Model.getTask(name);
 					if (task.hasRead(resName))
@@ -890,14 +878,14 @@ public class VerificationAll {
 				}
 			}
 			
-			if (e.getType() == 1 || e.getType() == 2) { //加一
+			if (e.getType() == define.push || e.getType() == define.move) { //加一
 				Procedure proc = Model.getProcAt(e.getProcIndex());
 				ProgramPoint pp;
-				if (e.getType() == 1)
+				if (e.getType() == define.push)
 					pp = proc.getPP(0);// 获取初始程序点
 				else
 					pp = proc.getPP(e.getPnt());
-				if (pp.getType() == 'C') {
+				if (pp.getType() == define.call) {
 					String name = pp.getTaskName();
 					Task task = Model.getTask(name);
 					if (task.hasRead(resName))
@@ -916,6 +904,7 @@ public class VerificationAll {
 		return indices;
 	}
 	
+	
 	/**
 	 * 获取当前程序点的上一个程序点
 	 * @param index：eventPath中的第index个事件
@@ -926,8 +915,8 @@ public class VerificationAll {
 		Procedure proc = Model.getProcAt(procIndex);
 		for (int i = index - 1; i >= 0; i--) {
 			Event e = this.eventPath.get(i);
-			if ((e.getType() == 2 || e.getType() == 1) && e.getProcIndex() == procIndex) {
-				int point = (e.getType() == 2) ? e.getPnt() : 0;
+			if ((e.getType() == define.move || e.getType() == define.push) && e.getProcIndex() == procIndex) {
+				int point = (e.getType() == define.move) ? e.getPnt() : 0;
 				return proc.getPP(point);
 			}
 		}
@@ -938,12 +927,8 @@ public class VerificationAll {
 
 	/**
 	 * output to log at each end of path
+	 * 
 	 * @param endType: 路径遍历结束类型
-	 *  0： 正常结束
-	 *  1： 中断丢失
-	 *  2： 中断处理超时
-	 *  3： 子过程超时
-	 *  4： 资源冲突
 	 * @param info： 说明遍历结束的附加信息
 	 */
 	public void writeLog(int endType, String info){
@@ -951,28 +936,28 @@ public class VerificationAll {
 		this.pathCount++;	//increase path count
 		
 		/**output end reason**/
-		if(endType == 0){	//end normally
+		if(endType == define.noError){	//end normally
 			Logger.append("path " + this.pathCount
 					+ "  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
 		}
-		else if(endType == 1){	//interrupt lost
+		else if(endType == define.interLost){	//interrupt lost
 			Logger.append("path " + this.pathCount
 					+ "  $$$$$$$$$$$$$$$$$$$$$$$$$$$$ interruption " + info
 					+ " lost\r\n");
 		}
-		else if(endType == 4){	//SR conflict
+		else if(endType == define.SRconflict){	//SR conflict
 			Logger.append("path" + this.pathCount 
-					+ "  ++++++++++++++++++++++++++++ shareResource " + info 
+					+ "++++++++++++++++++++++++++++++ shareResource " + info 
 					+ " conflict!\r\n");
 		}
-		else if(endType == 3){	//task overTime
+		else if(endType == define.taskOT){	//task overTime
 			Logger.append("path " + this.pathCount
-					+ "  ****************************  event " + info
+					+ "  *****************************  event " + info
 					+ " over time!\r\n");
 		}
-		else{	//procedure overTime
+		else if(endType == define.procOT){	//procedure overTime
 			Logger.append("path " + this.pathCount
-					+ "  ############################ procedure " + info
+					+ "  ############################# procedure " + info
 					+ " over time\r\n");
 		}
 		

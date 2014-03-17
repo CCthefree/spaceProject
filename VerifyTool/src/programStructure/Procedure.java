@@ -1,9 +1,11 @@
 package programStructure;
 
-import initializer.Lexer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import util.Lexer;
+import util.define;
 import fileOperator.PPTest;
 
 /**
@@ -72,7 +74,7 @@ public class Procedure {
 		String cvName = token.get(0);
 		int assignValue = Integer.parseInt(token.get(2));
 		endPoint = startPoint + 1;
-		this.points.add(new ProgramPoint(startPoint, endPoint, 'A', cvName, assignValue));// 添加新的程序点
+		this.points.add(new ProgramPoint(startPoint, endPoint, define.assign, cvName, assignValue));// 添加新的程序点
 
 		return endPoint;
 	}
@@ -89,7 +91,7 @@ public class Procedure {
 		int endPoint;
 		String taskName = token.get(0);
 		endPoint = startPoint + 1;
-		this.points.add(new ProgramPoint(startPoint, endPoint, 'C', taskName));
+		this.points.add(new ProgramPoint(startPoint, endPoint, define.call, taskName));
 
 		return endPoint;
 	}
@@ -125,7 +127,7 @@ public class Procedure {
 		if (elseIndex == -1) { // 没有else语句
 			int temp = startPoint;
 			endPoint = if_branch(token.get(0), startPoint + 1);
-			this.points.add(new ProgramPoint(temp, temp + 1, 'I', exprs, endPoint));
+			this.points.add(new ProgramPoint(temp, temp + 1, define.IF, exprs, endPoint));
 
 		}
 		else { // 有else语句
@@ -139,7 +141,7 @@ public class Procedure {
 				else if (pp.getElsePoint() == elsePoint)
 					pp.setElsePoint(endPoint);
 			}
-			this.points.add(new ProgramPoint(temp, temp + 1, 'I', exprs, elsePoint));
+			this.points.add(new ProgramPoint(temp, temp + 1, define.IF, exprs, elsePoint));
 		}
 
 		return endPoint;
