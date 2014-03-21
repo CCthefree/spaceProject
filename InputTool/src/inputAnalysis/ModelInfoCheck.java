@@ -122,11 +122,13 @@ public class ModelInfoCheck{
 			index++;
 			
 			//检查中断处理程序
-			Statement st = inter.proc.statement;
-			st.check();
-			if(st.errorIndex != define.noError){
-				computeInfoCorrect = false;
-				ErrorInfo.add(st.errorInfo);
+			Statement st = inter.proc.statement;	//TODO 不是最新的结果
+			if (st != null) {
+				st.check();
+				if (st.errorIndex != define.noError) {
+					computeInfoCorrect = false;
+					ErrorInfo.add(st.errorInfo);
+				}
 			}
 		}
 

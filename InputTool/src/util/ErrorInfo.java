@@ -25,8 +25,10 @@ public class ErrorInfo{
 	 * add a new error information
 	 */
 	public static void add(String errorInfo){
-		ErrorInfo.info += (++ErrorInfo.index) + " ";
-		ErrorInfo.info += (errorInfo + "\n");
+		if(!ErrorInfo.info.contains(errorInfo)){	//TODO 效率
+			ErrorInfo.info += (++ErrorInfo.index) + " ";
+			ErrorInfo.info += (errorInfo + "\n");
+		}
 	}
 
 

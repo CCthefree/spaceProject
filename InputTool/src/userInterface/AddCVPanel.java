@@ -1,5 +1,7 @@
 package userInterface;
 
+import inputAnalysis.ModelInfoCheck;
+
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -209,9 +211,9 @@ public class AddCVPanel extends JDialog {
 		//add new tasks and refresh task table
 		for (String temp : cvs){
 			ControlVariable cv = Model.addNewCV(temp);
-
+			
 			//add new task in table
-			tablemodel.addRow(new String[] {cv.name, cv.lowerBound, cv.upperBound, cv.initValue});
+			tablemodel.addRow(ControlVariable.getContent(cv));
 		}
 		
 		this.dispose();

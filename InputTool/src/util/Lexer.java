@@ -144,7 +144,7 @@ public class Lexer{
 		int begin = 0; 
 		int end = begin;
 		
-		while(begin < len){
+		while(end < len){
 			char ch = str.charAt(end);
 			
 			if(state == 0){		//初始状态
@@ -273,6 +273,8 @@ public class Lexer{
 				}
 			}
 		}
+		if(state == 1 || state == 2)
+			result.add(str.substring(begin, end));
 		
 		return result;
 	}

@@ -1,6 +1,5 @@
-/fileOperator
-/inputAnalysis
-/ita
-/userInterface
 /util
+/inputAnalysis
 /variableDefinition
+/userInterface
+/fileOperator

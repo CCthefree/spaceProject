@@ -79,7 +79,7 @@ public class Statement_If extends Statement {
 		}
 		else {
 			for (int i = 0; i < size; i = i + 4) {
-				if (!(Lexer.isVariableName(boolExprToken.get(i))
+				if (!(Lexer.isStructuredVar(boolExprToken.get(i))
 						&& boolExprToken.get(i + 1).matches("<=|>=|<|>|==|!=") && boolExprToken
 						.get(i + 2).matches("[0-9]+")))
 					return define.syntaxError;

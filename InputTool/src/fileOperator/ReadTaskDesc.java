@@ -67,12 +67,15 @@ public class ReadTaskDesc {
 				if (flag == 0) {
 					//对一段完整的内容作基本语法检查，通过后存入哈希表
 					if (synaxCheck(lines) == define.syntaxError) {
-						Notifier.ErrorPrompt("附加文件存在语法错误！");
+						Notifier.ErrorPrompt("附加文件:" + this.fileName + " 存在语法错误！");
 						return;
 					}
 					lines = "";
 				}
-
+			}
+			
+			if(flag != 0){
+				Notifier.ErrorPrompt("附加文件:" + this.fileName + " 大括号不匹配！");
 			}
 			scanner.close();
 

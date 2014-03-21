@@ -1,6 +1,8 @@
 
 package userInterface;
 
+import inputAnalysis.ModelInfoCheck;
+
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -206,7 +208,7 @@ public class AddTaskPanel extends JDialog{
 			Task t = Model.addNewTask(temp);
 
 			//add new task in table
-			tablemodel.addRow(new String[] { t.name, t.lowerBound, t.upperBound, t.finishTime, t.getReadResource(), t.getWriteResource(), "" });
+			tablemodel.addRow(Task.getContent(t));
 		}
 
 		this.dispose();

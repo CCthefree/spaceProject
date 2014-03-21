@@ -50,11 +50,18 @@ public class Procedure {
 	public void setValue(String n, String desc) {
 		this.name = n;
 		this.description = desc;
-
+		
+		this.containedCVs = null;
+		this.containedTasks = null;
+		this.readSRs = null;
+		this.writeSRs = null;
+		this.undefineCVs = null;
+		this.undefineTasks = null;
+		this.undefineRSRs = null;
+		this.undefineWSRs = null;
+		
 		this.statement = new Statement_Sequence(n, desc);
-
 		this.statement.check();
-
 		if (this.statement.errorIndex == define.noError)
 			computeExecTime();
 	}
