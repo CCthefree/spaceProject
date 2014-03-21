@@ -16,7 +16,9 @@ import util.define;
 public class Statement_If extends Statement {
 
 	List<String> boolExpr;
-
+	private String expr;
+	private String ifPart;
+	private String elsePart;
 	public Statement_Sequence ifStat;
 	public Statement_Sequence elseStat;
 
@@ -26,13 +28,8 @@ public class Statement_If extends Statement {
 	 */
 	public Statement_If(String root, String content) {
 		this.root = root;
-		this.content = content;
+		this.expr = content;
 		this.errorInfo = "";
-		this.boolExpr = new ArrayList<String>();
-		this.errorIndex = expressionCheck();
-		
-		if (this.errorIndex == define.syntaxError)
-			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误！\n";
 	}
 
 
@@ -42,7 +39,7 @@ public class Statement_If extends Statement {
 	 * @param str
 	 */
 	public void addIfStat(String str) {
-		this.content += " " + str;
+		this.ifPart = str;
 		this.ifStat = new Statement_Sequence(this.root, str);
 	}
 
@@ -53,7 +50,7 @@ public class Statement_If extends Statement {
 	 * @param str
 	 */
 	public void addElseStat(String str) {
-		this.content += " else " + str;
+		this.elsePart = " else " + str;
 		this.elseStat = new Statement_Sequence(this.root, str);
 	}
 
@@ -64,7 +61,7 @@ public class Statement_If extends Statement {
 	 * @return
 	 */
 	private int expressionCheck() {
-		List<String> token = Lexer.lexer(this.content);
+		List<String> token = Lexer.lexer(this.expr);
 		int index = token.indexOf(")");
 		if (token.size() < 6 || !token.get(1).equals("(") || index != token.size()-1) { 
 			return define.syntaxError;
@@ -112,6 +109,13 @@ public class Statement_If extends Statement {
 	 * check the error type and get error info of the whole if statement
 	 */
 	public void check() {
+		this.content = this.expr + this.ifPart + this.elsePart;
+		this.boolExpr = new ArrayList<String>();
+		this.errorIndex = expressionCheck();
+		
+		if (this.errorIndex == define.syntaxError)
+			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误！\n";
+		
 		this.ifStat.check();
 		if(this.ifStat.errorIndex > this.errorIndex)
 			this.errorIndex = this.ifStat.errorIndex;

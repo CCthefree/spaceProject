@@ -21,14 +21,13 @@ public class Statement_Assign extends Statement {
 		this.root = root;
 		this.content = content;
 		this.errorInfo = "";
-		this.errorIndex = analysis();
 	}
 
 
 	/**
 	 * function of statement check, include syntax check and semantic check set
 	 */
-	private int analysis() {
+	public void check() {
 		List<String> token = Lexer.lexer(this.content);
 		int errorIndex = syntaxCheck(token);
 		if (errorIndex == define.noError) {
@@ -39,7 +38,7 @@ public class Statement_Assign extends Statement {
 			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误！\n";
 		}
 
-		return errorIndex;
+		this.errorIndex = errorIndex;
 	}
 
 

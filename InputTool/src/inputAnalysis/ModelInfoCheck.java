@@ -122,13 +122,11 @@ public class ModelInfoCheck{
 			index++;
 			
 			//检查中断处理程序
-			Statement st = inter.proc.statement;	//TODO 不是最新的结果
-			if (st != null) {
-				st.check();
-				if (st.errorIndex != define.noError) {
-					computeInfoCorrect = false;
-					ErrorInfo.add(st.errorInfo);
-				}
+			inter.proc.analysis();
+			Statement st = inter.proc.statement;
+			if (st != null && st.errorIndex != define.noError) {
+				computeInfoCorrect = false;
+				ErrorInfo.add(st.errorInfo);
 			}
 		}
 
@@ -295,6 +293,10 @@ public class ModelInfoCheck{
 	 * function to update all the task information after read task description file
 	 */
 	private static void updateTaskInfo(){
+		for(Task task : Model.taskArray){
+			if(task.proc != null)
+				task.proc.analysis();
+		}
 		//在检查子过程是否循环调用中记录出栈次序的列表，隐含了子过程的调用拓扑关系
 		ArrayList<Task> checkedList = new ArrayList<Task>();
 		if(checkLoopCall(checkedList) == true){	//存在循环调用，则弃用子过程附加文件中的所有信息

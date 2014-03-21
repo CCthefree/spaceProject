@@ -40,17 +40,15 @@ public class Procedure {
 	
 	
 	public Procedure(String name, String desc){
-		setValue(name, desc);
+		this.name = name;
+		this.description = desc;
 	}
 
 
 	/**
-	 * function to set value of procedure
+	 * function to analysis description of procedure
 	 */
-	public void setValue(String n, String desc) {
-		this.name = n;
-		this.description = desc;
-		
+	public void analysis() {
 		this.containedCVs = null;
 		this.containedTasks = null;
 		this.readSRs = null;
@@ -60,12 +58,19 @@ public class Procedure {
 		this.undefineRSRs = null;
 		this.undefineWSRs = null;
 		
-		this.statement = new Statement_Sequence(n, desc);
+		this.statement = new Statement_Sequence(this.name, this.description);
 		this.statement.check();
 		if (this.statement.errorIndex == define.noError)
 			computeExecTime();
 	}
 
+	
+	
+	public void setValue(String name, String desc){
+		this.name = name;
+		this.description = desc;
+	}
+	
 
 	/**
 	 * compute the worst execute time of the procedure

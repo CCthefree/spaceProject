@@ -18,7 +18,6 @@ public class Statement_OpenInter extends Statement {
 		this.root = root;
 		this.content = content;
 		this.errorInfo = "";
-		this.errorIndex = analysis();
 	}
 
 
@@ -26,7 +25,7 @@ public class Statement_OpenInter extends Statement {
 	 * check the open interruption statement, include syntax check and semantic
 	 * check
 	 */
-	private int analysis() {
+	public void check() {
 		List<String> token = Lexer.lexer(this.content);
 		int errorIndex = syntaxCheck(token);
 		if (errorIndex == define.noError) {
@@ -35,7 +34,7 @@ public class Statement_OpenInter extends Statement {
 		else
 			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误！\n";
 
-		return errorIndex;
+		this.errorIndex = errorIndex;
 	}
 
 

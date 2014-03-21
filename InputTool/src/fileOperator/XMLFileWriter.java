@@ -154,6 +154,9 @@ public class XMLFileWriter {
 			value.addElement("writeSource").addText(task.getWriteResource());
 			value.addElement("commFlag").addText(task.commFlag);
 			value.addElement("remark").addText(task.remark);
+			
+			if(task.proc != null)
+				value.addElement("procedure").addText(task.proc.description);
 		}
 	}
 

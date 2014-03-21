@@ -1287,6 +1287,7 @@ public class MainFrame extends JFrame implements WindowListener{
 					Procedure proc = Model.interArray.get(row).proc;
 					
 					proc.setValue(proc.name, desc);
+					proc.analysis();
 
 					if (proc.undefineCVs != null && !proc.undefineCVs.isEmpty())
 						AddCVPanel.newInstance(getMainFrame(), proc.undefineCVs);

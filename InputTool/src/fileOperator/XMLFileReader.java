@@ -16,6 +16,7 @@ import variableDefinition.ControlVariable;
 import variableDefinition.Interruption;
 import variableDefinition.Interval;
 import variableDefinition.Model;
+import variableDefinition.Procedure;
 import variableDefinition.ShareResource;
 import variableDefinition.Task;
 import variableDefinition.TaskSequence;
@@ -136,6 +137,7 @@ public class XMLFileReader {
 			inter.setValue(values);
 			Model.interArray.add(inter);
 			inter.proc.setValue(name, procStr);
+			inter.proc.analysis();
 		}
 	}
 
@@ -201,12 +203,16 @@ public class XMLFileReader {
 			String readSR = taskEle.elementText("readSource");
 			String writeSR = taskEle.elementText("writeSource");
 			String commFlag = taskEle.elementText("commFlag");
-			String remark = taskEle.elementText("remark");
+			String remark = taskEle.elementText("remark");		
 
 			String values[] = new String[] { name, lbd, ubd, finishTime, readSR, writeSR, commFlag, remark};
 			Task task = new Task();
-			task.setValue(values);
+			task.setValue(values);		
 			Model.taskArray.add(task);
+			if(taskEle.element("procedure") != null){
+				String procStr = taskEle.elementText("procedure");
+				task.proc = new Procedure(name, procStr);
+			}
 		}
 	}
 

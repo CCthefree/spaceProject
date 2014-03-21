@@ -20,6 +20,13 @@ public class Statement_Compound extends Statement{
 		this.root = root;
 		this.content = content;
 		this.errorInfo = "";
+	}
+	
+	
+	/**
+	 * check the error type and get error info of this compound statement
+	 */
+	public void check(){
 		this.childStats = new ArrayList<Statement>();
 		this.errorIndex = analysis();
 		
@@ -190,22 +197,7 @@ public class Statement_Compound extends Statement{
 		return define.noError;
 	}
 	
-	
-	/**
-	 * check the error type and get error info of this compound statement
-	 */
-//	public void check(){
-//		if (this.childStat != null) {
-//			this.childStat.check();
-//			//XXX 组合语句允许调用未定义的子过程，所以只考虑语法错误
-//			if(this.childStat.errorIndex == define.syntaxError){
-//				this.errorIndex = define.syntaxError;
-//				if(! this.errorInfo.contains(childStat.errorInfo))
-//					this.errorInfo += this.childStat.errorInfo;
-//			}
-//		}
-//	}
-	
+
 	
 	/**
 	 * 

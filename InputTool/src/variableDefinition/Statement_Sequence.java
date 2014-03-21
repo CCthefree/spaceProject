@@ -20,11 +20,6 @@ public class Statement_Sequence extends Statement{
 		this.root = root;
 		this.content = str;
 		this.errorInfo = "";
-		this.childStats = new ArrayList<Statement>();
-		this.errorIndex = analysis();
-		
-		if(this.errorIndex == define.syntaxError)
-			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误!\n";
 	}
 	
 	
@@ -101,9 +96,13 @@ public class Statement_Sequence extends Statement{
 	 * check the error type and get error info of the whole statement tree
 	 */
 	public void check(){
-		if(this.childStats.isEmpty())
-			;
-		else{
+		this.childStats = new ArrayList<Statement>();
+		this.errorIndex = analysis();
+	
+		if(this.errorIndex == define.syntaxError)
+			this.errorInfo += "【处理程序】" + this.root + ": " + this.content + " 语法错误!\n";
+		
+		if(!this.childStats.isEmpty()){
 			for(Statement stat : this.childStats){
 				stat.check();
 				if(stat.errorIndex > this.errorIndex)

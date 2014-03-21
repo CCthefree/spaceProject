@@ -127,9 +127,9 @@ public class ReadTaskDesc {
 		}
 		else {
 			Procedure preProc = task.proc;
-			Procedure proc = new Procedure();
+			Procedure proc = new Procedure(taskName, desc);
 			task.setProc(proc);
-			proc.setValue(taskName, desc);
+			proc.analysis();
 			
 			// 添加的子过程定义有语法错误，恢复子过程原有定义
 			if (proc.statement.errorIndex == define.syntaxError) {
