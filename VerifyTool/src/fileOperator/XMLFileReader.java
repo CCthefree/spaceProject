@@ -224,7 +224,7 @@ public class XMLFileReader {
 			String op = "";
 			int value = -1;
 			if(!invariant.equals("")){
-				ArrayList<String> token = Lexer.lexerAnalyse(invariant);
+				ArrayList<String> token = Lexer.lexer(invariant);
 				op = token.get(1);
 				value = Integer.parseInt(token.get(2));
 			}
@@ -249,7 +249,7 @@ public class XMLFileReader {
 			String op = "";
 			int value = -1;
 			if(!guard.equals("")){
-				ArrayList<String> token = Lexer.lexerAnalyse(guard);
+				ArrayList<String> token = Lexer.lexer(guard);
 				op = token.get(1);
 				value = Integer.parseInt(token.get(2));
 			}

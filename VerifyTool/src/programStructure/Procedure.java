@@ -25,56 +25,74 @@ public class Procedure {
 	/**
 	 * constructor, calculate the program point according to the description of
 	 * procedure
-	 * 
-	 * @param desc
 	 */
 	public Procedure(String desc) {
 		this.desc = desc;
 		this.points = new ArrayList<ProgramPoint>();
 
-		List<String> token = Lexer.lexerAnalyse(desc);
-		int startPoint = 0;
-
-		while (!token.isEmpty()) {
-			if (token.get(0).equals("if")) { // if语句
-				int index = (token.indexOf("else") != -1) ? token.indexOf("else") + 1 : token
-						.indexOf(")") + 1;
-				List<String> ifToken = token.subList(0, index + 1);// if语句的token
-				token = token.subList(index + 1, token.size());
-
-				startPoint = if_statement(ifToken, startPoint);
-			}
-			else if (token.get(1).equals("(")) { // 子过程
-				List<String> subProcToken = token.subList(0, 4);
-				token = token.subList(4, token.size());
-
-				startPoint = subProc(subProcToken, startPoint);
-			}
-			else if (token.get(1).equals("=")) { // 赋值语句
-				List<String> assignToken = token.subList(0, 4);
-				token = token.subList(4, token.size());
-
-				startPoint = cvAssignment(assignToken, startPoint);
-			}
-
-		}
-
-		sortPoints();
+		seqStat(this.desc, 0);
+		
+//		sortPoints();
+		test();
 	}
+	
+	
+	/**
+	 * program point analysis of sequence statement
+	 */
+	private int seqStat(String str, int startPoint){
+		String remainStr = new String(str).trim();
+		while(!remainStr.equals("")){
+			int index = Lexer.statIndex(remainStr);
+			String statStr = remainStr.substring(0, index+1);
+			remainStr = remainStr.substring(index+1).trim();
+			
+			if(statStr.startsWith("{")){	//组合语句或列序语句
+				statStr = statStr.substring(1, index).trim();
+				if(statStr.startsWith("["))
+					startPoint = compStat(statStr, startPoint);
+				else
+					startPoint = seqStat(statStr, startPoint);
+				
+			}
+			else if(statStr.startsWith("if")){		//TODO 先添加IF部分，再添加ELSE部分造成当前IF语句NEXTPOINT错误
+				ArrayList<BoolExpr> exprs = exprPart(statStr);
+				index = Lexer.statIndex(remainStr);
+				statStr = remainStr.substring(0, index+1);
+				remainStr = remainStr.substring(index+1).trim();
+				startPoint = ifPart(statStr, startPoint, exprs);
+				
+				if(remainStr.startsWith("else")){
+					remainStr = remainStr.substring(4).trim();
+					index = Lexer.statIndex(remainStr);
+					statStr = remainStr.substring(0, index+1);
+					remainStr = remainStr.substring(index+1).trim();
+					startPoint = elsePart(statStr, startPoint);
+				}
+			}
+			else{
+				if(statStr.contains("="))
+					startPoint = assignStat(statStr, startPoint);
+				else if(statStr.contains("("))
+					startPoint = callStat(statStr, startPoint);
+				else if(statStr.startsWith("open") || statStr.startsWith("close"))
+					startPoint = open_closeStat(statStr, startPoint);
+			}
+		}
+		
+		return startPoint;
+	}
+	
 
 
 	/**
 	 * program point analysis of assign statement
-	 * 
-	 * @param token
-	 * @param startPoint
-	 * @return
 	 */
-	public int cvAssignment(List<String> token, int startPoint) {// ///////////赋值语句
-		int endPoint;
+	private int assignStat(String str, int startPoint) {// ///////////赋值语句
+		ArrayList<String> token = Lexer.lexer(str);
 		String cvName = token.get(0);
 		int assignValue = Integer.parseInt(token.get(2));
-		endPoint = startPoint + 1;
+		int endPoint = startPoint + 1;
 		this.points.add(new ProgramPoint(startPoint, endPoint, define.assign, cvName, assignValue));// 添加新的程序点
 
 		return endPoint;
@@ -83,35 +101,52 @@ public class Procedure {
 
 	/**
 	 * program point analysis of call statement
-	 * 
-	 * @param token
-	 * @param startPoint
-	 * @return
 	 */
-	public int subProc(List<String> token, int startPoint) { // ////////子过程
-		int endPoint;
+	private int callStat(String str, int startPoint) {
+		ArrayList<String> token = Lexer.lexer(str);
 		String taskName = token.get(0);
-		endPoint = startPoint + 1;
+		int endPoint = startPoint + 1;
 		this.points.add(new ProgramPoint(startPoint, endPoint, define.call, taskName));
 
+		return endPoint;
+	}
+	
+	
+	/**
+	 * program point analysis of open/close statement
+	 */
+	private int open_closeStat(String str, int startPoint){
+		ArrayList<String> token = Lexer.lexer(str);
+		String irq = token.get(1);
+		int endPoint = startPoint + 1;
+		if(token.get(0).equals("open"))
+			this.points.add(new ProgramPoint(startPoint, endPoint, define.open, irq));
+		else 
+			this.points.add(new ProgramPoint(startPoint, endPoint, define.close, irq));
+		return endPoint;
+	}
+	
+	
+	/**
+	 * program point analysis of compound statement
+	 */
+	private int compStat(String str, int startPoint){
+		ArrayList<String> token = Lexer.lexer(str);
+		int endPoint = startPoint + 1;
+		
 		return endPoint;
 	}
 
 
 	/**
-	 * program point analysis of if statement
-	 * 
-	 * @param token
-	 * @param startPoint
-	 * @return
+	 * program point analysis of if statement(conditional expressions part)
 	 */
-	public int if_statement(List<String> token, int startPoint) {// ///////////////if语句
-		int endPoint = 0;
-
-		int boolExprIndex = token.indexOf(")");
-		List<String> boolExprToken = token.subList(2, boolExprIndex); // 布尔表达式的token
-		ArrayList<BoolExpr> exprs = new ArrayList<BoolExpr>();// *******************//
-		while (!boolExprToken.isEmpty()) {// 获取布尔表达式
+	public ArrayList<BoolExpr> exprPart(String str) {
+		int leftBucket = str.indexOf("(");
+		int rightBucket = str.indexOf(")");
+		List<String> boolExprToken = Lexer.lexer(str.substring(leftBucket+1, rightBucket));
+		ArrayList<BoolExpr> exprs = new ArrayList<BoolExpr>();
+		while (!boolExprToken.isEmpty()) {
 			String cvName = boolExprToken.get(0);
 			String op = boolExprToken.get(1);
 			int value = Integer.parseInt(boolExprToken.get(2));
@@ -122,71 +157,36 @@ public class Procedure {
 			else
 				break;
 		}
-
-		int elseIndex = token.indexOf("else");
-		token = token.subList(boolExprIndex + 1, token.size());// 去掉bool表达式部分
-		if (elseIndex == -1) { // 没有else语句
-			int temp = startPoint;
-			endPoint = if_branch(token.get(0), startPoint + 1);
-			this.points.add(new ProgramPoint(temp, temp + 1, define.IF, exprs, endPoint));
-
-		}
-		else { // 有else语句
-			int temp = startPoint;
-			int elsePoint = if_branch(token.get(0), startPoint + 1);
-			endPoint = if_branch(token.get(2), elsePoint);
-
-			for (ProgramPoint pp : this.points) {
-				if (pp.getNextPoint() == elsePoint)
-					pp.setNextPoint(endPoint);
-				else if (pp.getElsePoint() == elsePoint)
-					pp.setElsePoint(endPoint);
-			}
-			this.points.add(new ProgramPoint(temp, temp + 1, define.IF, exprs, elsePoint));
-		}
-
-		return endPoint;
+		
+		return exprs;
 	}
 
-
+	
 	/**
-	 * program point analysis of compound statement in if statement
-	 * 
-	 * @param str
-	 * @param startPoint
-	 * @return
+	 * program point analysis of if statement(if part)
 	 */
-	public int if_branch(String str, int startPoint) {
-		int endPoint = 0;
-		String stats = str.substring(1, str.length() - 1);
-		List<String> token = Lexer.lexerAnalyse(stats);
-		while (!token.isEmpty()) {
-			if (token.get(0).equals("if")) { // if语句
-				int index = (token.indexOf("else") != -1) ? token.indexOf("else") + 1 : token
-						.indexOf(")") + 1;
-				List<String> ifToken = token.subList(0, index + 1);// if语句的token
-				token = token.subList(index + 1, token.size());
-
-				startPoint = if_statement(ifToken, startPoint);
-			}
-			else if (token.get(1).equals("(")) { // 子过程
-				List<String> subProcToken = token.subList(0, 4);
-				token = token.subList(4, token.size());
-
-				startPoint = subProc(subProcToken, startPoint);
-			}
-			else if (token.get(1).equals("=")) { // 赋值语句
-				List<String> assignToken = token.subList(0, 4);
-				token = token.subList(4, token.size());
-
-				startPoint = cvAssignment(assignToken, startPoint);
-			}
-
-		}
-
-		endPoint = startPoint;
+	private int ifPart(String str, int startPoint, ArrayList<BoolExpr> exprs){
+		int endPoint = seqStat(str, startPoint+1);
+		this.points.add(new ProgramPoint(startPoint, startPoint+1, define.IF, exprs, endPoint));
 		return endPoint;
 	}
+	
+	
+	/**
+	 * program point analysis of if statement(else part)
+	 */
+	private int  elsePart(String str, int startPoint){
+		int endPoint = seqStat(str, startPoint);
+		
+		for (ProgramPoint pp : this.points) {
+			if (pp.getNextPoint() == startPoint)
+				pp.setNextPoint(endPoint);
+			else if (pp.getElsePoint() == startPoint)
+				pp.setElsePoint(endPoint);
+		}
+		return endPoint;
+	}
+		
 
 
 	/**
@@ -213,11 +213,10 @@ public class Procedure {
 	/**
 	 * get the program point at 'index'
 	 * 
-	 * @param index
 	 * @return null if index is illegal
 	 */
 	public ProgramPoint getPP(int index) {
-		if (index >= this.points.size() || index < 0) {
+		if (index < 0 || index >= this.points.size()) {
 			return null;
 		}
 		else
@@ -227,8 +226,6 @@ public class Procedure {
 
 	/**
 	 * get the end point of this procedure
-	 * 
-	 * @return
 	 */
 	public int getEndPnt() {
 		return this.points.size();

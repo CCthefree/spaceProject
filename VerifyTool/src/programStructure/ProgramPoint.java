@@ -149,10 +149,15 @@ public class ProgramPoint {
 		return IRQ;
 	}
 
+	
 	public ArrayList<BoolExpr> getExprs() {
 		return exprs;
 	}
 
+	
+	public void setExprs(ArrayList<BoolExpr> exp){
+		this.exprs = exp;
+	}
 
 	public int getElsePoint() {
 		return elsePoint;

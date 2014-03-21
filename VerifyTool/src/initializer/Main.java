@@ -7,6 +7,7 @@ import com.microsoft.z3.Z3Exception;
 
 import fileOperator.ITATest;
 import fileOperator.Logger;
+import fileOperator.PPTest;
 import fileOperator.ResultWriter;
 import fileOperator.XMLFileReader;
 
@@ -49,6 +50,9 @@ public class Main {
 		if (xmlReader.initModel() == false)
 			System.exit(1);
 
+		PPTest pp = new PPTest(ppFileName);
+		pp.output();
+		
 		Model.getSRArray().initialize(); // initialize nRead and nWrite of SR
 											// array
 
