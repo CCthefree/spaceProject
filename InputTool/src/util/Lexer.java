@@ -188,7 +188,7 @@ public class Lexer{
 				}
 			}
 			else if(state == 1){	//标识符识别
-				if(Character.isLetterOrDigit(ch))
+				if(Character.isLetterOrDigit(ch) || ch == '_')
 					end++;
 				else if(ch == '.'){
 					state = 7;	
